@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->string('student_id')->unique();
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('role')->default('Student');
+            $table->string('role');
             $table->timestamps();
             $table->softDeletes();
         });
