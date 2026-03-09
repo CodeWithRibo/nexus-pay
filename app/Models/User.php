@@ -29,6 +29,11 @@ class User extends Model
         return $this->hasMany(StudentBalance::class, 'user_id');
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'user_id');
+    }
+
     protected $hidden = [
         'password'
     ];

@@ -5,19 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class StudentBalance extends Model
+class Payment extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'fee_name',
-        'total_amount',
-        'paid_amount',
-        'status',
-        'user_id'
+        'reference_no',
+        'amount_paid',
+        'user_id',
+        'student_balance_id'
     ];
 
     public function user(): BelongsTo
@@ -25,8 +23,8 @@ class StudentBalance extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function payments(): HasMany
+    public function studentBalance() : BelongsTo
     {
-        return $this->hasMany(Payment::class, 'student_balance_id');
+        return $this->belongsTo(StudentBalance::class);
     }
 }
