@@ -40,4 +40,7 @@ const forwardedProps = useForwardProps(delegatedProps);
             <ChevronDown class="size-4 opacity-50" />
         </SelectIcon>
     </SelectTrigger>
+    <p v-if="error" class="text-xs font-medium text-red-500 italic">
+        {{ error }}
+    </p>
 </template>

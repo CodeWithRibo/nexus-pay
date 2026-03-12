@@ -22,7 +22,7 @@ defineProps({
         v-model="model"
         :placeholder="placeholder"
     />
-    <p v-if="error" class="text-sm font-medium text-red-500 italic">
+    <p v-if="error" class="text-xs font-medium text-red-500 italic">
         {{ error }}
     </p>
 </template>
