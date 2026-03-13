@@ -12,10 +12,6 @@ use Inertia\Inertia;
 
 class RegisterController extends Controller
 {
-    public function index()
-    {
-
-    }
 
     public function create()
     {

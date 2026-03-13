@@ -31,4 +31,9 @@ class LoginController extends Controller
             'login' => 'Invalid credentials',
         ]);
     }
+
+    public function destroy($id)
+    {
+
+    }
 }
