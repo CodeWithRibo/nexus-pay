@@ -1,22 +1,29 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Kiosk\LandingScreenController;
+use App\Http\Controllers\Kiosk\OtherSchoolFeeController;
+use App\Http\Controllers\Kiosk\ServiceSelectionController;
+use App\Http\Controllers\Kiosk\TuitionFeeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::middleware('auth')->group(function() {
+    Route::post('logout', [LoginController::class, 'destroy'])->name('login.destroy');
 
-Route::get('/logout', function (Request $request) {
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
+    Route::get('/logout', function (Request $request) {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+    });
 });
 
 Route::middleware(['guest'])->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('login');
     Route::post('login', [LoginController::class, 'store'])->name('login.store');
+
     Route::get('register', [RegisterController::class, 'create'])->name('register.create');
     Route::post('register', [RegisterController::class, 'store'])->name('register.store');
 
@@ -44,4 +51,3 @@ Route::middleware(['auth', 'cashier'])->group(function () {
 Route::middleware(['auth', 'admin'])->group(function() {
 
 });
-
