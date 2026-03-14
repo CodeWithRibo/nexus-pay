@@ -12,6 +12,7 @@ class LoginController extends Controller
 {
     public function create()
     {
+        usleep(1500000);
         return Inertia::render('Login');
     }
 
