@@ -19,6 +19,10 @@ Route::middleware(['guest'])->group(function () {
     Route::post('login', [LoginController::class, 'store'])->name('login.store');
     Route::get('register', [RegisterController::class, 'create'])->name('register.create');
     Route::post('register', [RegisterController::class, 'store'])->name('register.store');
+
+    //------------Kiosk Landing Screen---------------//
+    Route::get('kiosk/landing-screen', LandingScreenController::class)->name('kiosk.landing-screen');
+    Route::get('kiosk/service-selection', ServiceSelectionController::class)->name('kiosk.service-selection');
 });
 
 Route::middleware(['auth', 'student'])->group(function() {
