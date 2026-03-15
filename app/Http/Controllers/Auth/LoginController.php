@@ -26,7 +26,7 @@ class LoginController extends Controller
         if (Auth::guard('web')->attempt([$fieldType => $login, 'password' => $password])) {
             $request->session()->regenerate();
 
-            return to_route('home');
+            return redirect()->intended(route('kiosk.service-selection'));
         }
         return back()->withErrors([
             'login' => 'Invalid credentials',
