@@ -4,8 +4,10 @@ import { router } from "@inertiajs/vue3";
 
 const isLoading = ref(false);
 
-router.on("start", () => {
+router.on("start", (event) => {
     isLoading.value = true;
+
+    isLoading.value = event.detail.visit.url.pathname !== "/login";
 });
 router.on("finish", () => {
     isLoading.value = false;
