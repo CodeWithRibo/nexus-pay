@@ -20,9 +20,9 @@ const toServiceSelection = () => {
     >
         <div class="flex flex-col items-center">
             <img
-                class="h-24 w-24 rounded-full opacity-90 drop-shadow-[0_0_32px_rgba(255,255,255,0.12)] md:h-52 md:w-52"
-                :src="'/storage/logo.png'"
-                alt=""
+                class="h-24 w-24 rounded-full opacity-90 drop-shadow-[0_0_32px_rgba(255,255,255,0.12)] md:h-52 md:w-58"
+                :src="'/storage/nexus_logo.png'"
+                alt="nexus_logo"
             />
             <div class="text-center mt-20 space-y-5">
                 <h1 class="italic text-6xl font-bold">
