@@ -17,7 +17,7 @@
 
 /*Kiosk Layout*/
 .background{
-    @apply bg-[#121212] text-white w-full flex items-center justify-center relative min-h-screen;
+    @apply bg-[#121212] text-white;
 }
 
 @theme inline {
