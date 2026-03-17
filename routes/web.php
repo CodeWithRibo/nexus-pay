@@ -34,12 +34,9 @@ Route::middleware(['guest'])->group(function () {
 
 Route::middleware(['auth', 'student'])->group(function() {
     //------------Kiosk Service Selection---------------//
-    Route::get('kiosk/tuition-fee', TuitionFeeController::class)->name('kiosk.tuition-fee');
-    Route::get('kiosk/other-fee', OtherSchoolFeeController::class)->name('kiosk.other-fee');
+    Route::get('kiosk/tuition-fee/payment-method', TuitionFeeController::class)->name('kiosk.tuition-fee.payment-method');
+    Route::get('kiosk/other-fee/payment-method', OtherSchoolFeeController::class)->name('kiosk.other-fee.payment-method');
 
-    Route::get('/', function () {
-        return Inertia::render('Home');
-    })->name('home');
 });
 
 Route::middleware(['auth', 'cashier'])->group(function () {
