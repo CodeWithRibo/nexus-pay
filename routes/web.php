@@ -3,6 +3,9 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Kiosk\LandingScreenController;
+use App\Http\Controllers\Kiosk\CashInsertionController;
+use App\Http\Controllers\Kiosk\ProcessingPaymentController;
+use App\Http\Controllers\Kiosk\ReceiptController;
 use App\Http\Controllers\Kiosk\OtherSchoolFeeController;
 use App\Http\Controllers\Kiosk\ServiceSelectionController;
 use App\Http\Controllers\Kiosk\TuitionFeeController;
@@ -36,6 +39,9 @@ Route::middleware(['auth', 'student'])->group(function() {
     //------------Kiosk Service Selection---------------//
     Route::get('kiosk/tuition-fee/payment-method', TuitionFeeController::class)->name('kiosk.tuition-fee.payment-method');
     Route::get('kiosk/other-fee/payment-method', OtherSchoolFeeController::class)->name('kiosk.other-fee.payment-method');
+    Route::get('kiosk/tuition-fee/cash-insertion', CashInsertionController::class)->name('kiosk.tuition-fee.cash-insertion');
+    Route::get('kiosk/tuition-fee/processing', ProcessingPaymentController::class)->name('kiosk.tuition-fee.processing');
+    Route::get('kiosk/tuition-fee/receipt', ReceiptController::class)->name('kiosk.tuition-fee.receipt');
 
 });
 
