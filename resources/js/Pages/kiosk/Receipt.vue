@@ -137,7 +137,11 @@ const payment = {
                             Download PDF
                         </Button>
                         <Button
-                            @click="router.visit(route('kiosk.landing'))"
+                            @click="
+                                router.visit(
+                                    route('kiosk.tuition-fee.payment-method'),
+                                )
+                            "
                             class="w-full h-18 text-lg bg-[#0f0f0f] border border-white/20 text-white hover:bg-white/10 font-semibold rounded-xl flex items-center justify-center gap-2"
                         >
                             <Home class="size-5" />
