@@ -20,7 +20,7 @@ onMounted(() => {
         progress.value += 1;
 
         if (progress.value < 30) {
-            statusMessage.value = "CONNECTING TO CENTRAL BANK GATEWAY...";
+            statusMessage.value = "PROCESSING DETAILS...";
         } else if (progress.value < 60) {
             statusMessage.value = "VERIFYING TRANSACTION DETAILS...";
         } else if (progress.value < 90) {
@@ -28,7 +28,7 @@ onMounted(() => {
         } else {
             statusMessage.value = "FINALIZING TRANSACTION...";
         }
-    }, 50);
+    }, 100);
 });
 
 onUnmounted(() => {
@@ -44,11 +44,13 @@ onUnmounted(() => {
                 <div class="w-full rounded-3xl p-16 space-y-10">
                     <div class="flex justify-center">
                         <div
-                            class="w-24 h-24 bg-[#2a2a2a] border border-white/20 rounded-xl flex items-center justify-center shadow-lg"
+                            class="w-62 h-62 flex items-center justify-center shadow-lg animate-bounce transition-all duration-75"
                         >
-                            <span class="text-5xl font-black italic text-white"
-                                >N</span
-                            >
+                            <img
+                                class="rounded-lg"
+                                :src="'/storage/nexus_logo_v2.png'"
+                                alt="nexus_logo"
+                            />
                         </div>
                     </div>
 
@@ -59,8 +61,7 @@ onUnmounted(() => {
                             Processing Payment...
                         </h1>
                         <p class="text-gray-400 text-lg leading-relaxed">
-                            Please wait. Do not remove your card or close the
-                            screen.
+                            Please wait. Do not close the screen.
                         </p>
                     </div>
 
