@@ -2,6 +2,7 @@
 import { Label } from "@/components/ui/label/index.js";
 import { Button } from "@/components/ui/button/index.js";
 import { BanknoteArrowUp, QrCode } from "lucide-vue-next";
+import { router } from "@inertiajs/vue3";
 </script>
 
 <template>
@@ -96,6 +97,9 @@ import { BanknoteArrowUp, QrCode } from "lucide-vue-next";
             </div>
             <div class="flex gap-5 mx-10">
                 <Button
+                    @click="
+                        router.visit(route('kiosk.tuition-fee.cash-insertion'))
+                    "
                     class="group flex-1 h-42 p-15 rounded-2xl border-2 border-white/20 transition-all duration-300 flex items-center justify-start gap-6 text-left hover:border-white/60 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                 >
                     <div class="flex items-center gap-6">
@@ -134,7 +138,6 @@ import { BanknoteArrowUp, QrCode } from "lucide-vue-next";
                     </div>
                 </Button>
             </div>
-            <!--Description Footer-->
             <div class="flex item-center justify-center mt-52">
                 <p class="text-gray-300 text-lg font-sembold tracking-wider">
                     This kiosk is monitored for security.Please do not leave
@@ -144,5 +147,3 @@ import { BanknoteArrowUp, QrCode } from "lucide-vue-next";
         </div>
     </div>
 </template>
-
-<style scoped></style>
