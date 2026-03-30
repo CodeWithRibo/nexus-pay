@@ -6,7 +6,7 @@ use App\Http\Controllers\Kiosk\LandingScreenController;
 use App\Http\Controllers\Kiosk\CashInsertionController;
 use App\Http\Controllers\Kiosk\ProcessingPaymentController;
 use App\Http\Controllers\Kiosk\ReceiptController;
-use App\Http\Controllers\Kiosk\OtherSchoolFeeController;
+use App\Http\Controllers\Kiosk\CheckBalanceController;
 use App\Http\Controllers\Kiosk\ServiceSelectionController;
 use App\Http\Controllers\Kiosk\TuitionFeeController;
 use Illuminate\Http\Request;
@@ -31,18 +31,17 @@ Route::middleware(['guest'])->group(function () {
     Route::post('register', [RegisterController::class, 'store'])->name('register.store');
 
     //------------Kiosk Landing Screen---------------//
-    Route::get('kiosk/landing-screen', LandingScreenController::class)->name('kiosk.landing-screen');
+    Route::get('/', LandingScreenController::class)->name('kiosk.landing-screen');
     Route::get('kiosk/service-selection', ServiceSelectionController::class)->name('kiosk.service-selection');
 });
 
 Route::middleware(['auth', 'student'])->group(function() {
     //------------Kiosk Service Selection---------------//
     Route::get('kiosk/tuition-fee/payment-method', TuitionFeeController::class)->name('kiosk.tuition-fee.payment-method');
-    Route::get('kiosk/other-fee/payment-method', OtherSchoolFeeController::class)->name('kiosk.other-fee.payment-method');
+    Route::get('kiosk/other-fee/payment-method', CheckBalanceController::class)->name('kiosk.other-fee.payment-method');
     Route::get('kiosk/tuition-fee/cash-insertion', CashInsertionController::class)->name('kiosk.tuition-fee.cash-insertion');
     Route::get('kiosk/tuition-fee/processing', ProcessingPaymentController::class)->name('kiosk.tuition-fee.processing');
     Route::get('kiosk/tuition-fee/receipt', ReceiptController::class)->name('kiosk.tuition-fee.receipt');
-
 });
 
 Route::middleware(['auth', 'cashier'])->group(function () {

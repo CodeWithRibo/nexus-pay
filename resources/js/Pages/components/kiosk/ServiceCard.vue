@@ -1,5 +1,5 @@
 <script setup>
-import { GraduationCap, Receipt, ShieldCheck } from "lucide-vue-next";
+import { GraduationCap, ShieldCheck, HandCoins } from "lucide-vue-next";
 import { ref } from "vue";
 import {
     Dialog,
@@ -19,9 +19,9 @@ const cardData = [
         routeName: route("kiosk.tuition-fee.payment-method"),
     },
     {
-        name: "Other School Fees",
-        icon: Receipt,
-        description: "Laboratory, library, and miscellaneous fees",
+        name: "Check Balances",
+        icon: HandCoins,
+        description: "View your outstanding balances",
         routeName: route("kiosk.other-fee.payment-method"),
     },
 ];
