@@ -13,6 +13,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::get('kiosk/service-selection/{isLoggedIn?}', ServiceSelectionController::class)
+    ->whereIn('isLoggedIn', ['0', '1', 'true', 'false'],)
+    ->name('kiosk.service-selection');
+//------------Kiosk Landing Screen---------------//
+Route::get('/{isLoggedIn?}', LandingScreenController::class)
+    ->whereIn('isLoggedIn', ['0', '1', 'true', 'false'],)
+    ->name('kiosk.landing-screen');
+
 Route::middleware('auth')->group(function() {
     Route::post('logout', [LoginController::class, 'destroy'])->name('login.destroy');
 
@@ -30,9 +38,7 @@ Route::middleware(['guest'])->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register.create');
     Route::post('register', [RegisterController::class, 'store'])->name('register.store');
 
-    //------------Kiosk Landing Screen---------------//
-    Route::get('/', LandingScreenController::class)->name('kiosk.landing-screen');
-    Route::get('kiosk/service-selection', ServiceSelectionController::class)->name('kiosk.service-selection');
+
 });
 
 Route::middleware(['auth', 'student'])->group(function() {
