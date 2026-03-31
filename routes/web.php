@@ -10,6 +10,7 @@ use App\Http\Controllers\Kiosk\CheckBalanceController;
 use App\Http\Controllers\Kiosk\ServiceSelectionController;
 use App\Http\Controllers\Kiosk\TuitionFeeController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -44,12 +45,11 @@ Route::get('/{isLoggedIn?}', LandingScreenController::class)
 
 Route::middleware(['auth', 'student'])->group(function() {
     Route::get('kiosk/tuition-fee/payment-method', TuitionFeeController::class)->name('kiosk.tuition-fee.payment-method');
-    Route::get('kiosk/other-fee/payment-method', CheckBalanceController::class)->name('kiosk.other-fee.payment-method');
     Route::get('kiosk/tuition-fee/cash-insertion', CashInsertionController::class)->name('kiosk.tuition-fee.cash-insertion');
     Route::get('kiosk/tuition-fee/processing', ProcessingPaymentController::class)->name('kiosk.tuition-fee.processing');
     Route::get('kiosk/tuition-fee/receipt', ReceiptController::class)->name('kiosk.tuition-fee.receipt');
 
-    Route::get('/kiosk/outstanding-balance', CheckBalanceController::class)->name('kiosk.outstanding-balance');
+    Route::get('kiosk/outstanding-balance', CheckBalanceController::class)->name('kiosk.outstanding-balance');
 
 });
 
