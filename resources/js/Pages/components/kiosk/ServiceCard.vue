@@ -22,7 +22,7 @@ const cardData = [
         name: "Check Balances",
         icon: HandCoins,
         description: "View your outstanding balances",
-        routeName: route("kiosk.other-fee.payment-method"),
+        routeName: route("kiosk.outstanding-balance"),
     },
 ];
 
