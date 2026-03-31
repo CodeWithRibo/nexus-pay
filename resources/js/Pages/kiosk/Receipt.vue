@@ -1,7 +1,6 @@
 <script setup>
 import { Head, router } from "@inertiajs/vue3";
 import KioskLayout from "@/Pages/components/layout/KioskLayout.vue";
-import HeaderSection from "@/Pages/components/kiosk/HeaderSection.vue";
 import Footer from "@/Pages/components/layout/kiosk/Footer.vue";
 import { CheckCircle2, Printer, Download, Home } from "lucide-vue-next";
 import { Button } from "@/components/ui/button/index.js";
