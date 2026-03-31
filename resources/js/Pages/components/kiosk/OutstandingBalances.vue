@@ -71,7 +71,7 @@ const proceedToPayment = () => {
                     class="border border-gray-500 rounded-lg bg-[#FFFFFF0D] px-6 py-7 transition-all duration-500 ease-in-out hover:border-white hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                 >
                     <p
-                        class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-500"
+                        class="text-[14px] font-semibold uppercase tracking-[0.35em] text-gray-500"
                     >
                         {{ item.title }}
                     </p>
@@ -90,7 +90,7 @@ const proceedToPayment = () => {
 
             <!-- Immediate action -->
             <section
-                class="relative overflow-hidden border border-white/10 bg-[#f4f4f4] px-8 py-10 text-black md:px-12 md:py-12"
+                class="relative overflow-hidden border rounded-xl border-white/10 bg-[#f4f4f4] px-8 py-10 text-black md:px-12 md:py-12"
             >
                 <div
                     class="pointer-events-none absolute -right-4 top-0 h-full w-24 -skew-x-14 bg-black/5"
@@ -101,7 +101,7 @@ const proceedToPayment = () => {
                 >
                     <div>
                         <p
-                            class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-500"
+                            class="text-[14px] font-semibold uppercase tracking-[0.35em] text-gray-500"
                         >
                             Immediate Action
                         </p>
@@ -115,7 +115,7 @@ const proceedToPayment = () => {
                     <div class="flex items-center gap-6">
                         <div class="text-right">
                             <p
-                                class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-500"
+                                class="text-[14px] font-semibold uppercase tracking-[0.35em] text-gray-500"
                             >
                                 Total Payable
                             </p>
@@ -126,7 +126,7 @@ const proceedToPayment = () => {
 
                         <Button
                             @click="proceedToPayment"
-                            class="h-20 w-20 rounded-none bg-black text-white hover:bg-black"
+                            class="h-20 w-20 rounded-xl bg-black text-white hover:bg-black"
                         >
                             <ArrowRight class="size-7" />
                         </Button>
@@ -137,7 +137,7 @@ const proceedToPayment = () => {
             <section class="space-y-4">
                 <div class="flex items-center gap-4">
                     <p
-                        class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-500"
+                        class="text-[14px] font-semibold uppercase tracking-[0.35em] text-gray-500"
                     >
                         Itemized Breakdown
                     </p>
