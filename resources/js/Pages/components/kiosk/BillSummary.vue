@@ -2,13 +2,19 @@
 import { Label } from "@/components/ui/label/index.js";
 import { Button } from "@/components/ui/button/index.js";
 import { BanknoteArrowUp, QrCode } from "lucide-vue-next";
-import { router, usePage } from "@inertiajs/vue3";
-import { computed, onMounted } from "vue";
+import { router } from "@inertiajs/vue3";
 
-const page = usePage();
-const user = computed(() => page.props.auth.user);
+const props = defineProps({
+    student: {
+        type: Object,
+        required: true,
+    },
+});
 
-console.log(user ? user.value.email : "guest");
+const formattedCurrency = new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+}).format(props.student.current_balance);
 </script>
 
 <template>
@@ -41,7 +47,7 @@ console.log(user ? user.value.email : "guest");
                             <h2
                                 class="text-white font-semibold text-3xl tracking-tighter"
                             >
-                                Jonathan Doe
+                                {{ student.student_name }}
                             </h2>
                             <div
                                 class="w-[85%] border-b-[0.01rem] border-b-gray-500 mt-8 mb-4"
@@ -57,7 +63,7 @@ console.log(user ? user.value.email : "guest");
                             <h2
                                 class="text-white font-semibold text-3xl tracking-tighter"
                             >
-                                02000411496
+                                {{ student.student_id }}
                             </h2>
                             <div
                                 class="w-[85%] border-b-[0.01rem] border-b-gray-500 mt-8 mb-4"
@@ -73,7 +79,7 @@ console.log(user ? user.value.email : "guest");
                             <h2
                                 class="text-white font-semibold text-3xl tracking-tighter"
                             >
-                                Tuition Fee Payment
+                                {{ student.description }}
                             </h2>
                             <div
                                 class="w-[85%] border-b-[0.01rem] border-b-gray-500 mt-8 mb-4"
@@ -86,7 +92,9 @@ console.log(user ? user.value.email : "guest");
                         <span class="text-gray-400 text-lg"
                             >Current Balance</span
                         >
-                        <h1 class="text-5xl font-bold">₱100,50.50</h1>
+                        <h1 class="text-5xl font-bold">
+                            {{ formattedCurrency }}
+                        </h1>
                     </div>
                 </nav>
             </div>
