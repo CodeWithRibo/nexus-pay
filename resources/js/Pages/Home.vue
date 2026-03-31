@@ -1,5 +1,8 @@
-<script setup></script>
+<script setup>
+import LogoutForm from "@/Pages/components/auth/LogoutForm.vue";
+</script>
 
 <template>
-    <div>Hello</div>
+    <LogoutForm />
+    <div>Authenticated</div>
 </template>
