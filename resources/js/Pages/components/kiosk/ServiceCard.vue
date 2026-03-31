@@ -48,7 +48,7 @@ const DpaCondition = [
 </script>
 
 <template>
-    <div class="flex flex-col items-center space-y-32">
+    <div class="flex flex-col items-center space-y-24">
         <div class="text-5xl font-bold">Please select a service</div>
 
         <div class="flex gap-5">
