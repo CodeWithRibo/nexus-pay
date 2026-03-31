@@ -8,7 +8,7 @@ import KioskLayout from "@/Pages/components/layout/KioskLayout.vue";
     <KioskLayout
         class="w-full flex items-center justify-center relative min-h-screen"
     >
-        <Head title="Landing" />
+        <Head title="Home" />
         <HeroSection />
     </KioskLayout>
 </template>
