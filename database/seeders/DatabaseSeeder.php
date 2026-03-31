@@ -29,7 +29,8 @@ class DatabaseSeeder extends Seeder
             ->create([
                 'email' => 'student@example.com',
                 'student_id' => '02000411496',
-                'password' => 'stotomas20060628'
+                'password' => 'stotomas20060628',
+                'credit_balance' => 0,
             ]);
 
         $balance = StudentBalance::factory()->for($user)->create([
