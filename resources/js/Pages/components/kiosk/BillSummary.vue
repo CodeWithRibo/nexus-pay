@@ -2,7 +2,13 @@
 import { Label } from "@/components/ui/label/index.js";
 import { Button } from "@/components/ui/button/index.js";
 import { BanknoteArrowUp, QrCode } from "lucide-vue-next";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
+import { computed, onMounted } from "vue";
+
+const page = usePage();
+const user = computed(() => page.props.auth.user);
+
+console.log(user ? user.value.email : "guest");
 </script>
 
 <template>
