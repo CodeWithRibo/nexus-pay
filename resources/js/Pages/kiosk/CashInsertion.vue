@@ -2,23 +2,32 @@
 import { Head, router } from "@inertiajs/vue3";
 import { ref, computed } from "vue";
 import KioskLayout from "@/Pages/components/layout/KioskLayout.vue";
-import HeaderSection from "@/Pages/components/kiosk/HeaderSection.vue";
+import HeaderSection from "@/Pages/components/layout/kiosk/HeaderSection.vue";
 import Footer from "@/Pages/components/layout/kiosk/Footer.vue";
 import { Button } from "@/components/ui/button/index.js";
-import { Wallet, Banknote, Clock4, Plus } from "lucide-vue-next";
+import { Wallet, Banknote, CircleCheck, Plus } from "lucide-vue-next";
 
-const amountDue = ref(1250);
 const insertedAmount = ref(0);
-const isWaiting = ref(true);
 const isSubmitting = ref(false);
 const manualAmount = ref("");
 
+const props = defineProps({
+    studAmountDue: {
+        type: String,
+        require: true,
+    },
+});
+
+const formattedCurrency = new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+}).format(props.studAmountDue);
+
 const remainingAmount = computed(() =>
-    Math.max(amountDue.value - insertedAmount.value, 0),
+    Math.max(props.studAmountDue - insertedAmount.value, 0),
 );
 
-if (insertedAmount.value >= amountDue.value) {
-    isWaiting.value = false;
+if (insertedAmount.value >= props.studAmountDue) {
     isSubmitting.value = true;
     setTimeout(() => {
         router.visit(route("kiosk.tuition-fee.processing"));
@@ -28,18 +37,24 @@ const handleManualInsert = () => {
     const amount = parseFloat(manualAmount.value);
     if (isNaN(amount) || amount <= 0) return;
 
+    const acceptedBills = [20, 50, 100, 200, 500, 1000];
+
+    if (!acceptedBills.includes(amount)) {
+        alert(
+            "Please insert valid paper bills only (20, 50, 100, 200, 500, 1000)",
+        );
+        manualAmount.value = "";
+        return;
+    }
+
     insertedAmount.value = Math.min(
         insertedAmount.value + amount,
-        amountDue.value,
+        props.studAmountDue,
     );
     manualAmount.value = "";
 
-    if (insertedAmount.value >= amountDue.value) {
-        isWaiting.value = false;
+    if (insertedAmount.value >= props.studAmountDue) {
         isSubmitting.value = true;
-        setTimeout(() => {
-            router.visit(route("kiosk.tuition-fee.processing"));
-        }, 600);
     }
 };
 
@@ -48,15 +63,11 @@ const addPresetAmount = (amount) => {
 
     insertedAmount.value = Math.min(
         insertedAmount.value + amount,
-        amountDue.value,
+        props.studAmountDue,
     );
 
-    if (insertedAmount.value >= amountDue.value) {
-        isWaiting.value = false;
+    if (insertedAmount.value >= props.studAmountDue) {
         isSubmitting.value = true;
-        setTimeout(() => {
-            router.visit(route("kiosk.tuition-fee.processing"));
-        }, 600);
     }
 };
 </script>
@@ -120,15 +131,15 @@ const addPresetAmount = (amount) => {
                                     placeholder="Enter amount"
                                     :disabled="isSubmitting"
                                     @keyup.enter="handleManualInsert"
-                                    class="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-50"
+                                    class="flex-1 px-4 py-3 text-lg bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-50"
                                 />
                                 <Button
                                     :disabled="isSubmitting || !manualAmount"
                                     @click="handleManualInsert"
-                                    class="px-6 py-2 bg-white text-black hover:bg-gray-200 disabled:opacity-50 rounded-lg font-semibold"
+                                    class="px-6 py-7 text-xl flex items-center bg-white text-black hover:bg-gray-200 disabled:opacity-50 rounded-lg font-semibold"
                                 >
                                     <Plus class="size-5" />
-                                    Add
+                                    <p>Add</p>
                                 </Button>
                             </div>
 
@@ -145,17 +156,14 @@ const addPresetAmount = (amount) => {
                             </div>
                         </div>
 
-                        <div
-                            v-if="isWaiting"
-                            class="flex items-center gap-2 text-gray-400 bg-gray-800/50 border border-gray-700 rounded-lg px-5 py-2.5"
+                        <Button
+                            class="flex w-full items-center justify-center gap-2 text-black bg-white hover:bg-white rounded-xl px-5 py-7 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-shadow duration-300"
                         >
-                            <Clock4 class="size-5" />
-                            <span
-                                class="text-sm font-medium tracking-wide uppercase"
-                            >
-                                Waiting for bills...
+                            <CircleCheck class="size-7" />
+                            <span class="text-2xl font-bold">
+                                Confirm Payment
                             </span>
-                        </div>
+                        </Button>
                     </div>
                 </div>
 
@@ -174,7 +182,7 @@ const addPresetAmount = (amount) => {
                             </p>
                         </div>
                         <p class="text-4xl font-bold">
-                            ₱{{ amountDue.toLocaleString() }}.00
+                            {{ formattedCurrency }}
                         </p>
                     </div>
                     <div
