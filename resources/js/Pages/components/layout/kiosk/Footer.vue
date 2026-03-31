@@ -1,5 +1,37 @@
 <script setup>
-import { Dot, Wifi } from "lucide-vue-next";
+import { Dot, Wifi, WifiOff } from "lucide-vue-next";
+import { onMounted, onUnmounted, ref } from "vue";
+
+const isConnected = ref(navigator.onLine);
+
+const updateConnectionStatus = () => {
+    isConnected.value = navigator.onLine;
+};
+
+onMounted(() => {
+    window.addEventListener("online", updateConnectionStatus);
+    window.addEventListener("offline", updateConnectionStatus);
+});
+onUnmounted(() => {
+    window.removeEventListener("online", updateConnectionStatus);
+    window.removeEventListener("offline", updateConnectionStatus);
+});
+
+const currentDate = new Date();
+const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+};
+const formattedDate = currentDate.toLocaleDateString("en-PH", options);
+
+const currentTime = currentDate.toLocaleTimeString("en-PH", {
+    hour12: true,
+    hour: "2-digit",
+    minute: "2-digit"
+});
+
 </script>
 
 <template>
@@ -17,16 +49,22 @@ import { Dot, Wifi } from "lucide-vue-next";
             <span
                 class="text-sm text-body sm:text-center flex items-center text-gray-300 uppercase tracking-wider font-semibold"
             >
-                <Wifi class="size-5 mr-3" />
-                Connected
+                <span v-if="isConnected" class="flex">
+                    <Wifi class="size-5 mr-3" />
+                    Connected
+                </span>
+                <span v-else class="flex">
+                    <WifiOff class="size-5 mr-3" />
+                    Offline
+                </span>
             </span>
         </div>
         <div
             class="flex flex-wrap items-center font-semibold uppercase tracking-wider text-gray-300 space-x-3"
         >
-            <h1>Wednesday, March 18, 2026</h1>
+            <h1>{{ formattedDate }}</h1>
             <Dot class="size-7" />
-            <span>10:14 PM</span>
+            <span>{{ currentTime }}</span>
         </div>
     </footer>
 </template>
