@@ -2,8 +2,6 @@
 import { Head, router } from "@inertiajs/vue3";
 import { onMounted, onUnmounted, ref } from "vue";
 import KioskLayout from "@/Pages/components/layout/KioskLayout.vue";
-import HeaderSection from "@/Pages/components/kiosk/HeaderSection.vue";
-import Footer from "@/Pages/components/layout/kiosk/Footer.vue";
 import { Shield, Lock, RefreshCw } from "lucide-vue-next";
 
 const progress = ref(1);
