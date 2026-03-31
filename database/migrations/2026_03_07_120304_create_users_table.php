@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->string('email')->unique();
             $table->string('password');
             $table->string('role');
+            $table->decimal('credit_balance')
+                ->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
