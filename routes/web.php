@@ -13,13 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('kiosk/service-selection/{isLoggedIn?}', ServiceSelectionController::class)
-    ->whereIn('isLoggedIn', ['0', '1', 'true', 'false'],)
-    ->name('kiosk.service-selection');
-//------------Kiosk Landing Screen---------------//
-Route::get('/{isLoggedIn?}', LandingScreenController::class)
-    ->whereIn('isLoggedIn', ['0', '1', 'true', 'false'],)
-    ->name('kiosk.landing-screen');
 
 Route::middleware('auth')->group(function() {
     Route::post('logout', [LoginController::class, 'destroy'])->name('login.destroy');
@@ -41,13 +34,23 @@ Route::middleware(['guest'])->group(function () {
 
 });
 
+//------------Kiosk---------------//
+Route::get('kiosk/service-selection/{isLoggedIn?}', ServiceSelectionController::class)
+    ->whereIn('isLoggedIn', ['0', '1', 'true', 'false'],)
+    ->name('kiosk.service-selection');
+Route::get('/{isLoggedIn?}', LandingScreenController::class)
+    ->whereIn('isLoggedIn', ['0', '1', 'true', 'false'],)
+    ->name('kiosk.landing-screen');
+
 Route::middleware(['auth', 'student'])->group(function() {
-    //------------Kiosk Service Selection---------------//
     Route::get('kiosk/tuition-fee/payment-method', TuitionFeeController::class)->name('kiosk.tuition-fee.payment-method');
     Route::get('kiosk/other-fee/payment-method', CheckBalanceController::class)->name('kiosk.other-fee.payment-method');
     Route::get('kiosk/tuition-fee/cash-insertion', CashInsertionController::class)->name('kiosk.tuition-fee.cash-insertion');
     Route::get('kiosk/tuition-fee/processing', ProcessingPaymentController::class)->name('kiosk.tuition-fee.processing');
     Route::get('kiosk/tuition-fee/receipt', ReceiptController::class)->name('kiosk.tuition-fee.receipt');
+
+    Route::get('/kiosk/outstanding-balance', CheckBalanceController::class)->name('kiosk.outstanding-balance');
+
 });
 
 Route::middleware(['auth', 'cashier'])->group(function () {
