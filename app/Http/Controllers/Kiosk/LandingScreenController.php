@@ -13,7 +13,6 @@ class LandingScreenController extends Controller
         $urlFlag = filter_var($isLoggedIn, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
         $actualAuth = auth()->check();
 
-        usleep(1500000);
         return Inertia::render('kiosk/LandingScreen', [
             'isLoggedInFromUrl' => $urlFlag,
             'isLoggedIn' => $actualAuth,
