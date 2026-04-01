@@ -112,7 +112,11 @@ const formattedCurrency = new Intl.NumberFormat("en-PH", {
             <div class="flex gap-5 mx-10">
                 <Button
                     @click="
-                        router.visit(route('kiosk.tuition-fee.cash-insertion'))
+                        router.visit(
+                            route('kiosk.tuition-fee.cash-insertion', {
+                                transaction_id: student.transaction_id,
+                            }),
+                        )
                     "
                     class="group flex-1 h-42 p-15 rounded-2xl border-2 border-white/20 transition-all duration-300 flex items-center justify-start gap-6 text-left hover:border-white/60 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                 >
