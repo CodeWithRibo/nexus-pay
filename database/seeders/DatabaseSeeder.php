@@ -44,6 +44,8 @@ class DatabaseSeeder extends Seeder
             ->for($user)
             ->for($balance)
             ->create([
+                'transaction_id' => fake()->uuid(),
+                'status' =>   'pending',
                 'amount_paid' => 1500.00,
                 'reference_no' => 'RF-2026-000123',
             ]);
