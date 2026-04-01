@@ -15,7 +15,9 @@ class Payment extends Model
         'reference_no',
         'amount_paid',
         'user_id',
-        'student_balance_id'
+        'student_balance_id',
+        'transaction_id',
+        'status'
     ];
 
     public function user(): BelongsTo
