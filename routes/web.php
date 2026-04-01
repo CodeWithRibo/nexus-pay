@@ -45,9 +45,10 @@ Route::get('/{isLoggedIn?}', LandingScreenController::class)
 
 Route::middleware(['auth', 'student'])->group(function() {
     Route::get('kiosk/tuition-fee/payment-method', TuitionFeeController::class)->name('kiosk.tuition-fee.payment-method');
-    Route::get('kiosk/tuition-fee/cash-insertion', CashInsertionController::class)->name('kiosk.tuition-fee.cash-insertion');
-    Route::get('kiosk/tuition-fee/processing', ProcessingPaymentController::class)->name('kiosk.tuition-fee.processing');
-    Route::get('kiosk/tuition-fee/receipt', ReceiptController::class)->name('kiosk.tuition-fee.receipt');
+    Route::get('kiosk/tuition-fee/cash-insertion/{transaction_id}', CashInsertionController::class)->name('kiosk.tuition-fee.cash-insertion');
+    Route::post('kiosk/tuition-fee/processing/{transaction_id}', [ProcessingPaymentController::class, 'process'])->name('kiosk.tuition-fee.processing.process');
+    Route::get('kiosk/tuition-fee/processing/{transaction_id}', [ProcessingPaymentController::class, 'index'])->name('kiosk.tuition-fee.processing.index');
+    Route::get('kiosk/tuition-fee/receipt/{transaction_id}', ReceiptController::class)->name('kiosk.tuition-fee.receipt');
 
     Route::get('kiosk/outstanding-balance', CheckBalanceController::class)->name('kiosk.outstanding-balance');
 
