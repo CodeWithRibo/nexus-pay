@@ -9,8 +9,11 @@ return new class extends Migration {
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('reference_no');
-            $table->decimal('amount_paid');
+            $table->uuid('transaction_id')->unique();
+            //('pending', 'completed', 'expired')
+            $table->string('status')->default('pending');
+            $table->string('reference_no')->nullable();
+            $table->decimal('amount_paid')->default(0);
             $table->foreignId('user_id')
                 ->nullable()
                 ->constrained()
