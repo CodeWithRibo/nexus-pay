@@ -1,6 +1,6 @@
 <script setup>
 import { Head, router } from "@inertiajs/vue3";
-import { ref, computed } from "vue";
+import { ref, computed, watch, watchEffect } from "vue";
 import KioskLayout from "@/Pages/components/layout/KioskLayout.vue";
 import HeaderSection from "@/Pages/components/layout/kiosk/HeaderSection.vue";
 import Footer from "@/Pages/components/layout/kiosk/Footer.vue";
@@ -10,6 +10,8 @@ import { Wallet, Banknote, CircleCheck, Plus } from "lucide-vue-next";
 const insertedAmount = ref(0);
 const isSubmitting = ref(false);
 const manualAmount = ref("");
+
+const MAX_OVERPAYMENT = 100;
 
 const props = defineProps({
     studAmountDue: {
@@ -29,10 +31,22 @@ const remainingAmount = computed(() =>
 
 if (insertedAmount.value >= props.studAmountDue) {
     isSubmitting.value = true;
-    setTimeout(() => {
-        router.visit(route("kiosk.tuition-fee.processing"));
-    }, 600);
 }
+
+function handleOverpayment(amount) {
+    const remainingAmount = props.studAmountDue - insertedAmount.value;
+    const creditBalance = amount - remainingAmount;
+
+    if (creditBalance > MAX_OVERPAYMENT) {
+        alert(
+            `This bill is too large! Please use a smaller bill (Max ₱${MAX_OVERPAYMENT} overpayment).`,
+        );
+        manualAmount.value = "";
+        return false;
+    }
+    return true;
+}
+
 const handleManualInsert = () => {
     const amount = parseFloat(manualAmount.value);
     if (isNaN(amount) || amount <= 0) return;
@@ -47,13 +61,12 @@ const handleManualInsert = () => {
         return;
     }
 
-    insertedAmount.value = Math.min(
-        insertedAmount.value + amount,
-        props.studAmountDue,
-    );
+    if (!handleOverpayment(amount)) return;
+
+    insertedAmount.value += amount;
     manualAmount.value = "";
 
-    if (insertedAmount.value >= props.studAmountDue) {
+    if (insertedAmount.value - props.studAmountDue >= MAX_OVERPAYMENT) {
         isSubmitting.value = true;
     }
 };
@@ -61,12 +74,11 @@ const handleManualInsert = () => {
 const addPresetAmount = (amount) => {
     if (isSubmitting.value) return;
 
-    insertedAmount.value = Math.min(
-        insertedAmount.value + amount,
-        props.studAmountDue,
-    );
+    if (!handleOverpayment(amount)) return;
 
-    if (insertedAmount.value >= props.studAmountDue) {
+    insertedAmount.value += amount;
+
+    if (insertedAmount.value - props.studAmountDue >= MAX_OVERPAYMENT) {
         isSubmitting.value = true;
     }
 };
