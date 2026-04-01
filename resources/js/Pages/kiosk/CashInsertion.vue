@@ -18,6 +18,10 @@ const props = defineProps({
         type: String,
         require: true,
     },
+    transaction_id: {
+        type: String,
+        require: true,
+    },
 });
 
 const formattedCurrency = new Intl.NumberFormat("en-PH", {
@@ -32,6 +36,22 @@ const remainingAmount = computed(() =>
 if (insertedAmount.value >= props.studAmountDue) {
     isSubmitting.value = true;
 }
+
+const handleConfirmPayment = () => {
+    const remainingAmount = props.studAmountDue - insertedAmount.value;
+
+    if (insertedAmount.value <= 0) return false;
+
+    router.post(
+        route("kiosk.tuition-fee.processing.process", {
+            transaction_id: props.transaction_id,
+        }),
+        {
+            amount_paid: insertedAmount.value,
+            credit_balance: remainingAmount,
+        },
+    );
+};
 
 function handleOverpayment(amount) {
     const remainingAmount = props.studAmountDue - insertedAmount.value;
@@ -169,6 +189,7 @@ const addPresetAmount = (amount) => {
                         </div>
 
                         <Button
+                            @click.prevent="handleConfirmPayment"
                             class="flex w-full items-center justify-center gap-2 text-black bg-white hover:bg-white rounded-xl px-5 py-7 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-shadow duration-300"
                         >
                             <CircleCheck class="size-7" />
