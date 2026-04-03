@@ -4,58 +4,88 @@ import { onMounted, onUnmounted, ref } from "vue";
 import KioskLayout from "@/Pages/components/layout/KioskLayout.vue";
 import { Shield, Lock, RefreshCw } from "lucide-vue-next";
 
-const progress = ref(1);
+const props = defineProps({
+    transaction_id: {
+        type: String,
+        required: true,
+    },
+    amount_paid: {
+        type: Number,
+        required: true,
+    },
+    credit_balance: {
+        type: Number,
+        required: true,
+    },
+});
+
+const progress = ref(0);
 const statusMessage = ref("CONNECTING TO CENTRAL BANK GATEWAY...");
 let timer = null;
-let processingTimer = null;
 
-onMounted(() => {
+const stages = [
+    { target: 25, message: "CONNECTING TO CENTRAL BANK GATEWAY...", duration: 2000 },
+    { target: 50, message: "VERIFYING TRANSACTION DETAILS...", duration: 2500 },
+    { target: 75, message: "PROCESSING SECURE PAYMENT...", duration: 2500 },
+    { target: 85, message: "FINALIZING TRANSACTION..", duration: 1000 },
+    { target: 100, message: "TRANSACTION COMPLETED...", duration: 2000 },
+];
+
+const runProgressStages = (stageIndex = 0) => {
+    if (stageIndex >= stages.length) {
+        processPayment();
+        return;
+    }
+
+    const stage = stages[stageIndex];
+    statusMessage.value = stage.message;
+
+    const startProgress = progress.value;
+    const progressDiff = stage.target - startProgress;
+    const stepTime = 100;
+    const steps = stage.duration / stepTime;
+    const increment = progressDiff / steps;
+    let stepCount = 0;
 
     timer = setInterval(() => {
-        if (progress.value >= 100) {
-            clearInterval(timer);
-
-            router.visit(route("kiosk.tuition-fee.receipt", {
-                transaction_id: route().params.transaction_id
-            }));
-            return;
-        }
-        progress.value += 1;
-
-        if (progress.value < 30) {
-            statusMessage.value = "PROCESSING DETAILS...";
-        } else if (progress.value < 60) {
-            statusMessage.value = "VERIFYING TRANSACTION DETAILS...";
-        } else if (progress.value < 90) {
-            statusMessage.value = "PROCESSING SECURE PAYMENT...";
-        } else {
-            statusMessage.value = "FINALIZING TRANSACTION...";
-        }
-    }, 30);
-
-
-    processingTimer = setTimeout(() => {
-        router.post(
-            route("kiosk.tuition-fee.processing.process", {
-                transaction_id: route().params.transaction_id,
-            }),
-            {
-                amount_paid: route().params.amount_paid,
-                credit_balance: route().params.credit_balance,
-            },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    console.log('Payment processed successfully');
-                }
-            }
+        stepCount++;
+        progress.value = Math.min(
+            Math.round(startProgress + increment * stepCount),
+            stage.target
         );
-    }, 5000);
+
+        if (stepCount >= steps) {
+            clearInterval(timer);
+            runProgressStages(stageIndex + 1);
+        }
+    }, stepTime);
+};
+
+const processPayment = () => {
+    router.post(
+        route("kiosk.tuition-fee.processing.process", {
+            transaction_id: props.transaction_id,
+        }),
+        {
+            amount_paid: props.amount_paid,
+            credit_balance: props.credit_balance,
+        },
+        {
+            preserveScroll: true,
+            onError: (errors) => {
+                console.error("Payment failed:", errors);
+                statusMessage.value = "TRANSACTION FAILED. PLEASE TRY AGAIN.";
+            },
+        }
+    );
+};
+
+onMounted(() => {
+    runProgressStages(0);
 });
 
 onUnmounted(() => {
     if (timer) clearInterval(timer);
-    if (processingTimer) clearTimeout(processingTimer);
 });
 </script>
 
