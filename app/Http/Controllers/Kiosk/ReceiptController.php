@@ -4,21 +4,54 @@ namespace App\Http\Controllers\Kiosk;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\User;
 use Inertia\Inertia;
 
 class ReceiptController extends Controller
 {
     public function __invoke($transaction_id)
     {
+        $student = User::query()
+            ->where('id', auth()->id())
+            ->with([
+                'information:id,first_name,last_name,user_id',
+                'studentBalances' => function ($query) {
+                    $query->where('fee_name', 'Tuition Fee')
+                        ->latest()
+                        ->select(['id', 'fee_name', 'total_amount', 'paid_amount', 'user_id']);
+                },
+                'payments:id,amount_paid,user_id'
+            ])->findOrFail(auth()->id());
+
         $payment = Payment::query()
             ->where('transaction_id', $transaction_id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-//        if ($payment->status !== 'pending') {
-//            return redirect()->route('kiosk.landing-screen');
-//        }
+        if ($payment->status !== 'completed') {
+            return redirect()->route('kiosk.landing-screen');
+        }
 
-        return Inertia::render('kiosk/Receipt');
+        $sessionKey = "receipt_viewed_{$transaction_id}";
+        if (session()->has($sessionKey)) {
+            return redirect()->route('kiosk.landing-screen');
+        }
+
+        session()->put($sessionKey, false);
+
+        $studentBalance = $student->studentBalances->first();
+        $totalPaidToDate = optional($studentBalance)->paid_amount ?? 0;
+        $totalAmount = optional($studentBalance)->total_amount ?? 0;
+
+        return Inertia::render('kiosk/Receipt', [
+            'student_name' => $student->information->first_name.' '.$student->information->last_name ?? 'Unknown',
+            'student_id' => $student->student_id,
+            'reference_number' => $payment->reference_no,
+            'fee_category' => optional($studentBalance)->fee_name,
+            'amount_paid' => $payment->amount_paid,
+            'total_paid_to_date' => $totalPaidToDate,
+            'outstanding_balance' => $totalAmount,
+            'transaction_date' => $payment->created_at->format('F d, Y \a\t h:i A'),
+        ]);
     }
 }
