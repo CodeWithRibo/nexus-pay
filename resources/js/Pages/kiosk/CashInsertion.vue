@@ -42,15 +42,12 @@ const handleConfirmPayment = () => {
 
     if (insertedAmount.value <= 0) return false;
 
-    router.post(
-        route("kiosk.tuition-fee.processing.process", {
-            transaction_id: props.transaction_id,
-        }),
-        {
-            amount_paid: insertedAmount.value,
-            credit_balance: remainingAmount,
-        },
-    );
+    router.visit(route('kiosk.tuition-fee.processing.index', {
+        transaction_id: props.transaction_id,
+        amount_paid: insertedAmount.value,
+        credit_balance: remainingAmount
+    }))
+
 };
 
 function handleOverpayment(amount) {

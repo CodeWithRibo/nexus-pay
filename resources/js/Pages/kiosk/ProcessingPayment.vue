@@ -7,12 +7,17 @@ import { Shield, Lock, RefreshCw } from "lucide-vue-next";
 const progress = ref(1);
 const statusMessage = ref("CONNECTING TO CENTRAL BANK GATEWAY...");
 let timer = null;
+let processingTimer = null;
 
 onMounted(() => {
+
     timer = setInterval(() => {
         if (progress.value >= 100) {
             clearInterval(timer);
-            router.visit(route("kiosk.tuition-fee.receipt"));
+
+            router.visit(route("kiosk.tuition-fee.receipt", {
+                transaction_id: route().params.transaction_id
+            }));
             return;
         }
         progress.value += 1;
@@ -26,11 +31,31 @@ onMounted(() => {
         } else {
             statusMessage.value = "FINALIZING TRANSACTION...";
         }
-    }, 100);
+    }, 30);
+
+
+    processingTimer = setTimeout(() => {
+        router.post(
+            route("kiosk.tuition-fee.processing.process", {
+                transaction_id: route().params.transaction_id,
+            }),
+            {
+                amount_paid: route().params.amount_paid,
+                credit_balance: route().params.credit_balance,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    console.log('Payment processed successfully');
+                }
+            }
+        );
+    }, 5000);
 });
 
 onUnmounted(() => {
     if (timer) clearInterval(timer);
+    if (processingTimer) clearTimeout(processingTimer);
 });
 </script>
 
