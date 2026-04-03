@@ -30,9 +30,9 @@ class ProcessingPaymentController extends Controller
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        if ($payment->status !== 'pending') {
-            return redirect()->route('kiosk.landing-screen');
-        }
+//        if ($payment->status !== 'pending') {
+//            return redirect()->route('kiosk.landing-screen');
+//        }
 
         $payment->update([
             'status' => 'completed',
@@ -45,8 +45,8 @@ class ProcessingPaymentController extends Controller
             $newTotal = $balance->total_amount - $request->amount_paid;
 
             $balance->update([
-                'paid_amount' => $request->amount_paid,
-                'total_amount' => $newTotal < 0 ? 0 : $newTotal,
+                'paid_amount' => $balance->paid_amount + $request->amount_paid,
+                'total_amount' => max($newTotal, 0),
                 'status' => $newTotal <= 0 ? 'completed' : 'pending',
             ]);
         }
