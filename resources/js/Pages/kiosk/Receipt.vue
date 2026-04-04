@@ -1,5 +1,5 @@
 <script setup>
-import { Head, router } from "@inertiajs/vue3";
+import { Head, router, usePage } from "@inertiajs/vue3";
 import KioskLayout from "@/Pages/components/layout/KioskLayout.vue";
 import Footer from "@/Pages/components/layout/kiosk/Footer.vue";
 import {
@@ -11,7 +11,13 @@ import {
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button/index.js";
 import HeaderSection from "@/Pages/components/layout/kiosk/HeaderSection.vue";
+import LeavingModal from "@/components/LeavingModal.vue";
+import { computed, ref } from "vue";
+import IdleScanner from "@/components/IdleScanner.vue";
 
+const page = usePage();
+const user = computed(() => page.props.auth.user === null);
+const isAuth = computed(() => Boolean(!user.value));
 const props = defineProps({
     student_name: String,
     student_id: String,
@@ -23,15 +29,26 @@ const props = defineProps({
     transaction_date: String,
 });
 
+const leavingModal = ref(false);
+
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-PH", {
         style: "currency",
         currency: "PHP",
     }).format(amount);
 };
+
+const handleLogout = () => {
+    router.post(route("login.destroy"));
+};
+
+const handleLeavingModal = () => {
+    leavingModal.value = true;
+};
 </script>
 
 <template>
+    <IdleScanner v-if="isAuth" />
     <KioskLayout>
         <Head title="Payment Receipt" />
         <div class="flex flex-col bg-[#0a0a0a] min-h-screen">
@@ -218,13 +235,7 @@ const formatCurrency = (amount) => {
                             Print Receipt
                         </Button>
                         <Button
-                            class="w-full h-12 sm:h-14 lg:h-18 text-sm sm:text-base lg:text-lg bg-[#0f0f0f] border border-white/20 text-white hover:bg-white/10 font-semibold rounded-lg sm:rounded-xl flex items-center justify-center gap-2"
-                        >
-                            <Download class="size-4 sm:size-5" />
-                            Download PDF
-                        </Button>
-                        <Button
-                            @click="router.visit(route('kiosk.landing-screen'))"
+                            @click="handleLeavingModal"
                             class="w-full h-12 sm:h-14 lg:h-18 text-sm sm:text-base lg:text-lg bg-[#0f0f0f] border border-white/20 text-white hover:bg-white/10 font-semibold rounded-lg sm:rounded-xl flex items-center justify-center gap-2"
                         >
                             <Home class="size-4 sm:size-5" />
@@ -236,4 +247,5 @@ const formatCurrency = (amount) => {
             <Footer />
         </div>
     </KioskLayout>
+    <LeavingModal v-model:open="leavingModal" @logout="handleLogout" />
 </template>
