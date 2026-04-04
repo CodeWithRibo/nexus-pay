@@ -25,16 +25,21 @@ class LoginController extends Controller
 
         if (Auth::guard('web')->attempt([$fieldType => $login, 'password' => $password])) {
             $transactionId = $request->session()->get('transaction_id');
+
             $request->session()->regenerate();
-            
+
             if ($transactionId) {
                 $request->session()->put('transaction_id', $transactionId);
             }
 
+            $getName = Auth::user()->load('information')->information;
+
+            $fullName  = $getName?->first_name . ' ' . $getName?->last_name;
+            $request->session()->flash('success', 'Welcome Back!' . " {$fullName}");
             return redirect()->intended(route('kiosk.service-selection'));
         }
         return back()->withErrors([
-            'login' => 'Invalid credentials',
+            'login' => 'Invalid Student ID / Email or password',
         ]);
     }
 
@@ -44,29 +49,8 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        $request->session()->flash('success', 'You have been safely logged out');
         return to_route('login');
     }
 
-    public function destroyWithTransaction(Request $request)
-    {
-        $transactionId = $request->session()->get('transaction_id');
-
-        if ($transactionId) {
-            $payment = Payment::query()
-                ->where('transaction_id', $transactionId)
-                ->where('user_id', auth()->id())
-                ->where('status', 'pending')
-                ->first();
-
-            if ($payment) {
-                $payment->delete();
-            }
-        }
-
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return to_route('login');
-    }
 }
