@@ -18,6 +18,7 @@ use Inertia\Inertia;
 
 Route::middleware('auth')->group(function() {
     Route::post('logout', [LoginController::class, 'destroy'])->name('login.destroy');
+    Route::post('logout-with-transaction', [LoginController::class, 'destroyWithTransaction'])->name('login.destroy.with.transaction');
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();
