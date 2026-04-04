@@ -5,6 +5,7 @@ import { ref } from "vue";
 import { router, usePage } from "@inertiajs/vue3";
 import LeavingModal from "@/components/LeavingModal.vue";
 import LogoutModal from "@/components/LogoutModal.vue";
+import CancelTransactionModal from "@/components/CancelTransactionModal.vue";
 
 const page = usePage();
 
@@ -19,6 +20,7 @@ const showLogoutBtn = ref(false);
 const showCancelTransactionBtn = ref(false);
 const showLeavingModal = ref(false);
 const showLogoutModal = ref(false);
+const showCancelTransactionModal = ref(false);
 
 const currentRouteName = route().current();
 
@@ -47,13 +49,27 @@ const logoutModal = () => {
     showLogoutModal.value = true;
 };
 
+const cancelTransactionModal = () => {
+    showCancelTransactionModal.value = true;
+}
+
+
 const handleLogout = () => {
+    if (currentRouteName === "kiosk.tuition-fee.cash-insertion")
+    {
+        return router.post(route("login.destroy.with.transaction"));
+    }
+
     router.post(route("login.destroy"));
 };
 
 const handleGoBack = () => {
-    history.back();
+    router.visit(route("kiosk.service-selection"));
 };
+
+const handleBillSummary = () => {
+    router.visit(route("kiosk.outstanding-balance"));
+}
 </script>
 
 <template>
@@ -87,7 +103,7 @@ const handleGoBack = () => {
                 </Button>
 
                 <Button
-                    v-if="showLogoutBtn"
+                    v-if="showLogoutBtn && isAuth"
                     @click="logoutModal"
                     class="text-2xl bg-transparent hover:bg-transparent py-6 w-25 font-bold tracking-wider"
                 >
@@ -96,6 +112,7 @@ const handleGoBack = () => {
                 </Button>
                 <Button
                     v-if="showCancelTransactionBtn"
+                    @click="cancelTransactionModal"
                     class="text-xl bg-white/20 hover:bg-white/20 py-6 w-full font-bold tracking-wider"
                 >
                     <LogOut class="size-5 text-white" />
@@ -112,4 +129,8 @@ const handleGoBack = () => {
     />
 
     <LogoutModal v-model:open="showLogoutModal" @logout="handleLogout" />
+
+    <CancelTransactionModal v-model:open="showCancelTransactionModal"
+                            @billSummary="handleBillSummary"
+                            @logout="handleLogout"/>
 </template>
