@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Kiosk\DestroyTransactionPaymentController;
 use App\Http\Controllers\Kiosk\LandingScreenController;
 use App\Http\Controllers\Kiosk\CashInsertionController;
 use App\Http\Controllers\Kiosk\ProcessingPaymentController;
@@ -18,7 +19,6 @@ use Inertia\Inertia;
 
 Route::middleware('auth')->group(function() {
     Route::post('logout', [LoginController::class, 'destroy'])->name('login.destroy');
-    Route::post('logout-with-transaction', [LoginController::class, 'destroyWithTransaction'])->name('login.destroy.with.transaction');
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();
@@ -46,6 +46,9 @@ Route::get('/{isLoggedIn?}', LandingScreenController::class)
     ->name('kiosk.landing-screen');
 
 Route::middleware(['auth', 'student'])->group(function() {
+    Route::post('kiosk/logout-with-transaction', [DestroyTransactionPaymentController::class, 'destroyWithTransaction'])->name('login.destroy.with.transaction');
+    Route::post('kiosk/remove-transaction', [DestroyTransactionPaymentController::class, 'removeTransaction'])->name('remove-transaction');
+
     Route::get('kiosk/tuition-fee/payment-method', TuitionFeeController::class)->name('kiosk.tuition-fee.payment-method');
     Route::post('kiosk/tuition-fee/initiate-payment', InitiatePaymentController::class)->name('kiosk.tuition-fee.initiate-payment');
     Route::get('kiosk/tuition-fee/cash-insertion/{transaction_id}', CashInsertionController::class)->name('kiosk.tuition-fee.cash-insertion');
