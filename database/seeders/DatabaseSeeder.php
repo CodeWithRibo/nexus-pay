@@ -21,8 +21,8 @@ class DatabaseSeeder extends Seeder
         $user = User::factory()
             ->has(
                 UserInformation::factory()->state([
-                    'first_name' => 'Jonathan',
-                    'last_name' => 'Doe',
+                    'first_name' => 'Ribo',
+                    'last_name' => 'Luna',
                 ]),
                 'information'
             )
@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
 
         $balance = StudentBalance::factory()->for($user)->create([
             'fee_name' => 'Tuition Fee',
-            'total_amount' => 1500.00,
+            'total_amount' => 42000.00,
             'paid_amount' => 0,
             'status' => 'pending',
         ]);
