@@ -1,5 +1,5 @@
 <script setup>
-import { X, CircleAlert } from "lucide-vue-next";
+import { X, CircleAlert, ShieldCheck, PlayCircle } from "lucide-vue-next";
 import {
     AlertDialog,
     AlertDialogCancel,
@@ -16,6 +16,14 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    isLocked: {
+        type: Boolean,
+        required: true,
+    },
+    insertedAmount: {
+        type: String,
+        required: true,
+    },
 });
 
 const emit = defineEmits(["update:open", "logout", "billSummary"]);
@@ -31,7 +39,7 @@ const handleClose = () => {
 
 const handleBillSummary = () => {
     emit("billSummary");
-}
+};
 </script>
 
 <template>
@@ -47,27 +55,64 @@ const handleBillSummary = () => {
 
             <AlertDialogHeader>
                 <AlertDialogTitle class="text-2xl flex items-center gap-3">
-                    <CircleAlert class="size-7" />
-                    <p>Cancel Transaction?</p>
+                    <ShieldCheck
+                        v-if="isLocked"
+                        class="size-7 text-amber-500"
+                    />
+                    <CircleAlert v-else class="size-7" />
+
+                    <p>
+                        {{
+                            isLocked
+                                ? "Transaction Locked"
+                                : "Cancel Transaction?"
+                        }}
+                    </p>
                 </AlertDialogTitle>
                 <AlertDialogDescription class="text-lg">
-                    Do you want to go back to your bill summary or log out to keep your account safe?
+                    <template v-if="isLocked">
+                        Cash has been detected. To secure your
+                        <span class="font-bold">₱{{ insertedAmount }}</span
+                        >, please complete the insertion process. You cannot
+                        exit until a receipt is generated.
+                    </template>
+
+                    <template v-else>
+                        Do you want to go back to your bill summary or log out
+                        to keep your account safe?
+                    </template>
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel
-                    @click="handleBillSummary"
-                    class="py-5 text-lg cursor-pointer"
-                >
-                    Back to Bill Summary
-                </AlertDialogCancel>
-                <Button
-                    variant="destructive"
-                    @click="handleLogout"
-                    class="py-5 text-lg hover:opacity-75 cursor-pointer"
-                >
-                    Logout Now
-                </Button>
+                <template v-if="isLocked">
+                    <AlertDialogAction
+                        class="w-full py-6 text-lg font-bold tracking-wide transition-all duration-200 bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-lg shadow-emerald-900/20 active:scale-[0.98] cursor-pointer"
+                    >
+                        <div class="flex items-center justify-center gap-2">
+                            <PlayCircle class="size-6" />
+                            <span @click="handleClose" class="text-xl">
+                                Continue Inserting Cash
+                            </span>
+                        </div>
+                    </AlertDialogAction>
+                </template>
+
+                <template v-else>
+                    <AlertDialogCancel
+                        @click="handleBillSummary"
+                        class="py-5 text-lg cursor-pointer"
+                    >
+                        Back to Bill Summary
+                    </AlertDialogCancel>
+
+                    <Button
+                        variant="destructive"
+                        @click="handleLogout"
+                        class="py-5 text-lg hover:opacity-75 cursor-pointer"
+                    >
+                        Logout Now
+                    </Button>
+                </template>
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
