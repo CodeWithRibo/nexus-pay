@@ -19,7 +19,7 @@ const countdown = ref(15);
 let idleTimer = null;
 let countdownInterval = null;
 
-const IDLE_LIMIT = 1500000;
+const IDLE_LIMIT = 1000;
 
 const resetTimers = () => {
     if (isIdleModalOpen.value) return;
@@ -86,11 +86,11 @@ const handleClose = () => {
     >
         <AlertDialogContent
             @interactOutside="handleClose"
-            class="bg-zinc-950 border-amber-500/40 max-w-md rounded-3xl shadow-[0_0_50px_rgba(245,158,11,0.15)]"
+            class="bg-zinc-950 border-white-500/40 max-w-md rounded-3xl shadow-[0_0_20px_rgba(255,255,255,0.3)]"
         >
             <AlertDialogHeader class="flex flex-col items-center text-center">
-                <div class="p-4 bg-amber-500/10 rounded-full mb-4">
-                    <Clock class="size-12 text-amber-500 animate-pulse" />
+                <div class="p-4 bg-white-500/10 rounded-full mb-4">
+                    <Clock class="size-15 text-white animate-pulse" />
                 </div>
                 <AlertDialogTitle
                     class="text-3xl font-black tracking-tight text-white"
@@ -98,11 +98,10 @@ const handleClose = () => {
                     Still Working?
                 </AlertDialogTitle>
                 <AlertDialogDescription class="text-zinc-400 text-lg mt-2">
-                    Para sa iyong seguridad, mag-a-auto logout ang session sa
-                    loob ng:
+                    For your security, your session will auto-logout
 
                     <div
-                        class="mt-6 text-6xl font-mono font-black text-amber-500 tracking-tighter"
+                        class="mt-6 text-6xl text-center font-mono font-black text-gray-200 tracking-tighter"
                     >
                         00:{{ countdown < 10 ? "0" + countdown : countdown }}
                     </div>
