@@ -57,7 +57,6 @@ const formatCurrency = (value) =>
     }).format(value);
 
 const proceedToPayment = () => {
-    // Reuse existing flow for now; swap route when dedicated outstanding route is ready.
     router.visit(route("kiosk.tuition-fee.payment-method"));
 };
 </script>
