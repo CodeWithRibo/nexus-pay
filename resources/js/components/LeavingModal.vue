@@ -10,7 +10,11 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button/index.js";
+import { ref } from "vue";
+import { router } from "@inertiajs/vue3";
 
+const currentRouteName = route().current();
+const handleReceiptRoute = ref(false);
 const props = defineProps({
     open: {
         type: Boolean,
@@ -19,6 +23,10 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update:open", "logout", "goBack"]);
+
+if (currentRouteName === "kiosk.tuition-fee.receipt") {
+    handleReceiptRoute.value = true;
+}
 
 const handleLogout = () => {
     emit("logout");
@@ -32,6 +40,10 @@ const handleGoBack = () => {
 
 const handleClose = () => {
     emit("update:open", false);
+};
+
+const toHome = () => {
+    router.visit(route("kiosk.landing-screen"));
 };
 </script>
 
@@ -57,12 +69,22 @@ const handleClose = () => {
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel
-                    @click="handleGoBack"
-                    class="py-5 text-lg cursor-pointer"
-                >
-                    Go Back
-                </AlertDialogCancel>
+                <template v-if="handleReceiptRoute">
+                    <AlertDialogCancel
+                        @click="toHome"
+                        class="py-5 text-lg cursor-pointer"
+                    >
+                        Back to Home
+                    </AlertDialogCancel>
+                </template>
+                <template v-else>
+                    <AlertDialogCancel
+                        @click="handleGoBack"
+                        class="py-5 text-lg cursor-pointer"
+                    >
+                        Go Back
+                    </AlertDialogCancel>
+                </template>
                 <Button
                     variant="destructive"
                     @click="handleLogout"
