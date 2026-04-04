@@ -38,6 +38,7 @@ class ReceiptController extends Controller
         }
 
         session()->put($sessionKey, false);
+        request()->session()->forget('transaction_id');
 
         $studentBalance = $student->studentBalances->first();
         $totalPaidToDate = optional($studentBalance)->paid_amount ?? 0;
