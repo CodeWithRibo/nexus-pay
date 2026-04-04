@@ -1,22 +1,11 @@
 <script setup>
 import { Button } from "@/components/ui/button/index.js";
-import { LogIn, ArrowLeft, X, ShieldCheck } from "lucide-vue-next";
+import { LogIn, LogOut, ArrowLeft } from "lucide-vue-next";
 import { ref } from "vue";
-import { router, useForm, usePage } from "@inertiajs/vue3";
-import LogoutForm from "@/Pages/components/auth/LogoutForm.vue";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { router, usePage } from "@inertiajs/vue3";
+import LeavingModal from "@/components/LeavingModal.vue";
+import LogoutModal from "@/components/LogoutModal.vue";
 
-const showActionBtn = ref(false);
 const page = usePage();
 
 const isAuth = page.props.auth.user !== null;
@@ -25,28 +14,58 @@ const toLogin = () => {
     router.visit(route("login"));
 };
 
+const showBackBtn = ref(false);
+const showLogoutBtn = ref(false);
+const showCancelTransactionBtn = ref(false);
+const showLeavingModal = ref(false);
+const showLogoutModal = ref(false);
+
+const currentRouteName = route().current();
+
 if (
-    page.url === "/kiosk/service-selection" ||
-    page.url === "/kiosk/outstanding-balance"
+    currentRouteName === "kiosk.service-selection" ||
+    currentRouteName === "kiosk.tuition-fee.receipt"
 ) {
-    showActionBtn.value = true;
+    showLogoutBtn.value = true;
+}
+if (currentRouteName === "kiosk.outstanding-balance") {
+    showLogoutBtn.value = true;
+    showBackBtn.value = true;
+}
+if (
+    currentRouteName === "kiosk.tuition-fee.payment-method" ||
+    currentRouteName === "kiosk.tuition-fee.cash-insertion"
+) {
+    showCancelTransactionBtn.value = true;
 }
 
 const backPage = () => {
+    showLeavingModal.value = true;
+};
+
+const logoutModal = () => {
+    showLogoutModal.value = true;
+};
+
+const handleLogout = () => {
+    router.post(route("login.destroy"));
+};
+
+const handleGoBack = () => {
     history.back();
 };
 </script>
 
 <template>
     <header class="p-4 dark:bg-gray-100 border border-white/20">
-        <div class="px-5 flex justify-between items-center h-16 mx-auto">
+        <div class="px-10 flex justify-between items-center h-16 mx-auto">
             <Button
                 @click="backPage"
-                v-if="showActionBtn"
+                v-if="showBackBtn"
                 class="text-2xl bg-transparent hover:bg-transparent py-6 w-25 font-bold tracking-wider"
             >
                 <ArrowLeft class="size-8" />
-                Back
+                Back Page
             </Button>
             <div aria-label="Logo" class="flex items-center p-2">
                 <img
@@ -66,62 +85,31 @@ const backPage = () => {
                     <LogIn class="size-5 text-white" />
                     Login
                 </Button>
-                <AlertDialog>
-                    <AlertDialogTrigger>
-                        <Button
-                            v-if="showActionBtn && isAuth"
-                            class="text-xl bg-white/20 hover :bg-white/20 py-6 w-full font-bold tracking-wider"
-                        >
-                            <LogIn class="size-5 text-white" />
-                            Logout
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle
-                                class="text-xl flex items-center gap-2"
-                            >
-                                <ShieldCheck class="size-7" />
-                                <p>Secure Logout</p>
-                            </AlertDialogTitle>
-                            <AlertDialogDescription class="space-y-5">
-                                <p class="text-lg">
-                                    To prevent unauthorized access to your
-                                    student account, please confirm you are
-                                    finished using this kiosk.
-                                </p>
-                                <div
-                                    class="flex items-center justify-start flex-row-reverse gap-3"
-                                >
-                                    <LogoutForm>
-                                        <Button
-                                            variant="destructive"
-                                            class="text-lg py-6 -mt-0.5"
-                                        >
-                                            <LogIn class="size-5 text-white" />
-                                            <p>Securely Logout</p>
-                                        </Button>
-                                    </LogoutForm>
-                                    <AlertDialogCancel
-                                        class="text-lg py-6 -mt-0.5 bg-black hover:bg-black hover:opacity-85 text-white hover:text-white border-none"
-                                    >
-                                        <X class="size-6" />
-                                        <p>Go Back</p>
-                                    </AlertDialogCancel>
-                                </div>
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                    </AlertDialogContent>
-                </AlertDialog>
 
                 <Button
-                    v-if="!showActionBtn"
+                    v-if="showLogoutBtn"
+                    @click="logoutModal"
+                    class="text-2xl bg-transparent hover:bg-transparent py-6 w-25 font-bold tracking-wider"
+                >
+                    <LogOut class="size-8" />
+                    Logout
+                </Button>
+                <Button
+                    v-if="showCancelTransactionBtn"
                     class="text-xl bg-white/20 hover:bg-white/20 py-6 w-full font-bold tracking-wider"
                 >
-                    <LogIn class="size-5 text-white" />
+                    <LogOut class="size-5 text-white" />
                     Cancel Transaction
                 </Button>
             </div>
         </div>
     </header>
+
+    <LeavingModal
+        v-model:open="showLeavingModal"
+        @logout="handleLogout"
+        @goBack="handleGoBack"
+    />
+
+    <LogoutModal v-model:open="showLogoutModal" @logout="handleLogout" />
 </template>
