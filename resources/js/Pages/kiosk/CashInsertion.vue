@@ -10,7 +10,6 @@ import { Wallet, Banknote, CircleCheck, Plus } from "lucide-vue-next";
 const insertedAmount = ref(0);
 const isSubmitting = ref(false);
 const manualAmount = ref("");
-
 const MAX_OVERPAYMENT = 100;
 
 const props = defineProps({
@@ -38,29 +37,28 @@ if (insertedAmount.value >= props.studAmountDue) {
 }
 
 const handleConfirmPayment = () => {
-    const remainingAmount = props.studAmountDue - insertedAmount.value;
+    const creditBalance = Math.max(
+        insertedAmount.value - props.studAmountDue,
+        0,
+    );
 
     if (insertedAmount.value <= 0) return false;
 
-    router.visit(route('kiosk.tuition-fee.processing.index', {
-        transaction_id: props.transaction_id,
-        amount_paid: insertedAmount.value,
-        credit_balance: remainingAmount
-    }))
-
+    router.post(
+        route("kiosk.tuition-fee.processing.start", {
+            transaction_id: props.transaction_id,
+        }),
+        {
+            amount_paid: insertedAmount.value,
+            credit_balance: creditBalance,
+        },
+    );
 };
 
 function handleOverpayment(amount) {
     const remainingAmount = props.studAmountDue - insertedAmount.value;
     const creditBalance = amount - remainingAmount;
 
-    if (creditBalance > MAX_OVERPAYMENT) {
-        alert(
-            `This bill is too large! Please use a smaller bill (Max ₱${MAX_OVERPAYMENT} overpayment).`,
-        );
-        manualAmount.value = "";
-        return false;
-    }
     return true;
 }
 
