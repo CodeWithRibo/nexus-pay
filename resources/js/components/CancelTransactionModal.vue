@@ -1,5 +1,5 @@
 <script setup>
-import { X, ShieldCheck } from "lucide-vue-next";
+import { X, CircleAlert } from "lucide-vue-next";
 import {
     AlertDialog,
     AlertDialogCancel,
@@ -18,7 +18,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(["update:open", "logout", "goBack"]);
+const emit = defineEmits(["update:open", "logout", "billSummary"]);
 
 const handleLogout = () => {
     emit("logout");
@@ -28,6 +28,10 @@ const handleLogout = () => {
 const handleClose = () => {
     emit("update:open", false);
 };
+
+const handleBillSummary = () => {
+    emit("billSummary");
+}
 </script>
 
 <template>
@@ -43,20 +47,19 @@ const handleClose = () => {
 
             <AlertDialogHeader>
                 <AlertDialogTitle class="text-2xl flex items-center gap-3">
-                    <ShieldCheck class="size-7" />
-                    <p>Secure Logout</p>
+                    <CircleAlert class="size-7" />
+                    <p>Cancel Transaction?</p>
                 </AlertDialogTitle>
                 <AlertDialogDescription class="text-lg">
-                    To prevent unauthorized access to your student account,
-                    please confirm you are finished using this kiosk
+                    Do you want to go back to your bill summary or log out to keep your account safe?
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
                 <AlertDialogCancel
-                    @click="handleClose"
+                    @click="handleBillSummary"
                     class="py-5 text-lg cursor-pointer"
                 >
-                    Cancel
+                    Back to Bill Summary
                 </AlertDialogCancel>
                 <Button
                     variant="destructive"
