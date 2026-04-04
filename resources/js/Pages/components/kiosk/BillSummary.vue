@@ -1,9 +1,11 @@
 <script setup>
 import { Label } from "@/components/ui/label/index.js";
 import { Button } from "@/components/ui/button/index.js";
-import { BanknoteArrowUp, QrCode } from "lucide-vue-next";
+import { BanknoteArrowUp, QrCode, CheckCircle } from "lucide-vue-next";
 import { router } from "@inertiajs/vue3";
+import { ref } from "vue";
 
+const isDisabled = ref(false);
 const props = defineProps({
     student: {
         type: Object,
@@ -11,10 +13,14 @@ const props = defineProps({
     },
 });
 
+if (Number(props.student.current_balance) === 0) {
+    isDisabled.value = true;
+}
+
 const formattedCurrency = new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
-}).format(props.student.current_balance);
+}).format(Number(props.student.current_balance));
 </script>
 
 <template>
@@ -111,12 +117,24 @@ const formattedCurrency = new Intl.NumberFormat("en-PH", {
             </div>
             <div class="flex gap-5 mx-10">
                 <Button
-                    @click="router.post(route('kiosk.tuition-fee.initiate-payment'))"
-                    class="group flex-1 h-42 p-15 rounded-2xl border-2 border-white/20 transition-all duration-300 flex items-center justify-start gap-6 text-left hover:border-white/60 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                    :disabled="isDisabled"
+                    @click="
+                        router.post(route('kiosk.tuition-fee.initiate-payment'))
+                    "
+                    :class="{
+                        'cursor-not-allowed': isDisabled,
+                        'hover:border-white/60 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]':
+                            !isDisabled,
+                    }"
+                    class="group flex-1 h-42 p-15 rounded-2xl border-2 border-white/20 transition-all duration-300 flex items-center justify-start gap-6 text-left"
                 >
                     <div class="flex items-center gap-6">
                         <div
-                            class="rounded-full p-4 border border-white/30 text-white transition-colors duration-300 group-hover:bg-white/15 group-hover:border-white/60"
+                            :class="{
+                                'group-hover:bg-white/15 group-hover:border-white/60':
+                                    !isDisabled,
+                            }"
+                            class="rounded-full p-4 border border-white/30 text-white transition-colors duration-300"
                         >
                             <BanknoteArrowUp class="size-10" />
                         </div>
@@ -150,10 +168,28 @@ const formattedCurrency = new Intl.NumberFormat("en-PH", {
                     </div>
                 </Button>
             </div>
-            <div class="flex item-center justify-center mt-52">
+            <div
+                v-if="student.current_balance > 0"
+                class="flex flex-col items-center justify-center mt-20"
+            >
                 <p class="text-gray-300 text-lg font-sembold tracking-wider">
-                    This kiosk is monitored for security.Please do not leave
+                    This kiosk is monitored for security. Please do not leave
                     during a transaction
+                </p>
+            </div>
+
+            <div
+                v-else
+                class="flex flex-col items-center justify-center p-10 mx-10 bg-zinc-900/50 rounded-2xl border border-dashed border-zinc-700"
+            >
+                <CheckCircle class="size-13 text-emerald-500 mb-4" />
+                <h3 class="text-2xl font-bold text-white">
+                    {{ student.description }} Settled
+                </h3>
+                <p class="text-zinc-400 text-lg text-center">
+                    There are no pending charges for your
+                    <b>{{ student.description }}</b
+                    >.
                 </p>
             </div>
         </div>
