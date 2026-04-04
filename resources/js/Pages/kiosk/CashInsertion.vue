@@ -1,16 +1,24 @@
 <script setup>
-import { Head, router } from "@inertiajs/vue3";
+import { Head, router, usePage } from "@inertiajs/vue3";
 import { ref, computed, watch, watchEffect } from "vue";
 import KioskLayout from "@/Pages/components/layout/KioskLayout.vue";
 import HeaderSection from "@/Pages/components/layout/kiosk/HeaderSection.vue";
 import Footer from "@/Pages/components/layout/kiosk/Footer.vue";
 import { Button } from "@/components/ui/button/index.js";
 import { Wallet, Banknote, CircleCheck, Plus } from "lucide-vue-next";
+import { toast } from "vue-sonner";
+import IdleScanner from "@/components/IdleScanner.vue";
 
-const insertedAmount = ref(0);
+const insertedAmount = ref(Number(localStorage.getItem("insertedAmount")) || 0);
 const isSubmitting = ref(false);
 const manualAmount = ref("");
-const MAX_OVERPAYMENT = 100;
+const page = usePage();
+const user = computed(() => page.props.auth.user === null);
+const isAuth = computed(() => Boolean(!user.value));
+
+watch(insertedAmount, (newVal) => {
+    localStorage.setItem("insertedAmount", newVal);
+});
 
 const props = defineProps({
     studAmountDue: {
@@ -44,6 +52,8 @@ const handleConfirmPayment = () => {
 
     if (insertedAmount.value <= 0) return false;
 
+    localStorage.removeItem("insertedAmount");
+
     router.post(
         route("kiosk.tuition-fee.processing.start", {
             transaction_id: props.transaction_id,
@@ -55,13 +65,6 @@ const handleConfirmPayment = () => {
     );
 };
 
-function handleOverpayment(amount) {
-    const remainingAmount = props.studAmountDue - insertedAmount.value;
-    const creditBalance = amount - remainingAmount;
-
-    return true;
-}
-
 const handleManualInsert = () => {
     const amount = parseFloat(manualAmount.value);
     if (isNaN(amount) || amount <= 0) return;
@@ -69,19 +72,29 @@ const handleManualInsert = () => {
     const acceptedBills = [20, 50, 100, 200, 500, 1000];
 
     if (!acceptedBills.includes(amount)) {
-        alert(
-            "Please insert valid paper bills only (20, 50, 100, 200, 500, 1000)",
-        );
+        toast.error("Invalid Bill Detected", {
+            description:
+                "Please use genuine ₱20, ₱50, ₱100, ₱200, ₱500, or ₱1,000 bills.",
+            duration: 2500,
+            position: "top-center",
+        });
         manualAmount.value = "";
         return;
     }
 
-    if (!handleOverpayment(amount)) return;
-
-    insertedAmount.value += amount;
+    insertedAmount.value = Math.min(
+        insertedAmount.value + amount,
+        props.studAmountDue,
+    );
     manualAmount.value = "";
 
-    if (insertedAmount.value - props.studAmountDue >= MAX_OVERPAYMENT) {
+    toast.success(`₱${amount}.00 Accepted`, {
+        description: `Total inserted is now ₱${insertedAmount.value}.00`,
+        duration: 2000,
+        position: "top-center",
+    });
+
+    if (insertedAmount.value >= props.studAmountDue) {
         isSubmitting.value = true;
     }
 };
@@ -89,21 +102,33 @@ const handleManualInsert = () => {
 const addPresetAmount = (amount) => {
     if (isSubmitting.value) return;
 
-    if (!handleOverpayment(amount)) return;
+    insertedAmount.value = Math.min(
+        insertedAmount.value + amount,
+        props.studAmountDue,
+    );
+    manualAmount.value = "";
 
-    insertedAmount.value += amount;
+    toast.success(`₱${amount}.00 Accepted`, {
+        description: `Total inserted is now ₱${insertedAmount.value}.00`,
+        duration: 2000,
+        position: "top-center",
+    });
 
-    if (insertedAmount.value - props.studAmountDue >= MAX_OVERPAYMENT) {
+    if (insertedAmount.value >= props.studAmountDue) {
         isSubmitting.value = true;
     }
 };
 </script>
 
 <template>
+    <IdleScanner v-if="isAuth" />
     <KioskLayout>
         <Head title="Cash Insertion (Interactive Mockup)" />
         <div class="min-h-screen flex flex-col">
-            <HeaderSection />
+            <HeaderSection
+                :insertedAmount="insertedAmount"
+                :isLocked="insertedAmount > 0"
+            />
             <main
                 class="flex-1 flex flex-col items-center justify-center px-10 py-8"
             >
