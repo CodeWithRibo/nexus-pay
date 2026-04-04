@@ -111,9 +111,9 @@ class ProcessingPaymentController extends Controller
                 ->update(['credit_balance' => $request->credit_balance]);
         });
 
-        // Clear the session data
         session()->forget("payment_data_{$transaction_id}");
 
+        $request->session()->flash('success', 'Your transaction is complete. Please wait for your printed receipt below.');
         return redirect()->route('kiosk.tuition-fee.receipt', ['transaction_id' => $transaction_id]);
     }
 }
