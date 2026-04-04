@@ -7,6 +7,18 @@ import LeavingModal from "@/components/LeavingModal.vue";
 import LogoutModal from "@/components/LogoutModal.vue";
 import CancelTransactionModal from "@/components/CancelTransactionModal.vue";
 
+const props = defineProps({
+    isLocked : {
+        type : Boolean,
+        required : false,
+    },
+    insertedAmount : {
+        type : Number,
+        required : false,
+        default : 0
+    }
+})
+
 const page = usePage();
 
 const isAuth = page.props.auth.user !== null;
@@ -51,12 +63,10 @@ const logoutModal = () => {
 
 const cancelTransactionModal = () => {
     showCancelTransactionModal.value = true;
-}
-
+};
 
 const handleLogout = () => {
-    if (currentRouteName === "kiosk.tuition-fee.cash-insertion")
-    {
+    if (currentRouteName === "kiosk.tuition-fee.cash-insertion") {
         return router.post(route("login.destroy.with.transaction"));
     }
 
@@ -68,8 +78,12 @@ const handleGoBack = () => {
 };
 
 const handleBillSummary = () => {
+    if (currentRouteName === "kiosk.tuition-fee.cash-insertion") {
+        router.post(route("remove-transaction"));
+        return;
+    }
     router.visit(route("kiosk.outstanding-balance"));
-}
+};
 </script>
 
 <template>
@@ -130,7 +144,11 @@ const handleBillSummary = () => {
 
     <LogoutModal v-model:open="showLogoutModal" @logout="handleLogout" />
 
-    <CancelTransactionModal v-model:open="showCancelTransactionModal"
-                            @billSummary="handleBillSummary"
-                            @logout="handleLogout"/>
+    <CancelTransactionModal
+        v-model:open="showCancelTransactionModal"
+        @billSummary="handleBillSummary"
+        @logout="handleLogout"
+        :isLocked="isLocked"
+        :insertedAmount="insertedAmount"
+    />
 </template>
