@@ -17,6 +17,10 @@ const props = defineProps({
         type: Number,
         required: true,
     },
+    use_dynamic_route: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const progress = ref(0);
@@ -62,8 +66,12 @@ const runProgressStages = (stageIndex = 0) => {
 };
 
 const processPayment = () => {
+    const routeName = props.use_dynamic_route 
+        ? "kiosk.processing.process" 
+        : "kiosk.tuition-fee.processing.process";
+    
     router.post(
-        route("kiosk.tuition-fee.processing.process", {
+        route(routeName, {
             transaction_id: props.transaction_id,
         }),
         {
