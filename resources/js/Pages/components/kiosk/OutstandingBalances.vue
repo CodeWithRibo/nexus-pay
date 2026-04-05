@@ -2,62 +2,69 @@
 import { computed } from "vue";
 import { router } from "@inertiajs/vue3";
 import { Button } from "@/components/ui/button/index.js";
-import { ArrowRight } from "lucide-vue-next";
+import { ArrowRight, CheckCircle } from "lucide-vue-next";
 
-const assessments = [
-    {
-        id: 1,
-        title: "Late Registration",
-        description: "Academic year 2023-2024",
-        amountDue: 1200,
-        amountPaid: 0,
+const props = defineProps({
+    studentBalances: {
+        type: Object,
+        required: true,
     },
-    {
-        id: 2,
-        title: "Laboratory Fee",
-        description: "Science department",
-        amountDue: 250,
-        amountPaid: 0,
+    totalAssessment : {
+        type : Number,
+        required : true,
     },
-];
+    amountSettled : {
+        type : Number,
+        required : true,
+    },
+    amountDue : {
+        type : Number,
+        required : true,
+    }
+})
 
-const studDataBalances = [
+// Ensure non-negative values for display
+const netBalance = computed(() => Math.max(0, props.amountDue));
+const isAllPaid = computed(() => props.amountDue <= 0);
+const hasUnpaidBalances = computed(() => 
+    props.studentBalances.some(item => item.status !== 'completed')
+);
+
+const studDataBalances = computed(() => [
     {
         title: "Total Assessment",
-        amount: 1450,
-        description: "Academic year 2023-2024",
+        amount: props.totalAssessment,
+        description: "Academic year 2026-2027",
     },
     {
         title: "Amount Settled",
-        amount: 0,
-        description: " Processed Payments ",
+        amount: props.amountSettled,
+        description: "Processed Payments",
     },
     {
         title: "Net Balances",
-        amount: 1450,
-        description: "Outstanding Due ",
+        amount: netBalance.value,
+        description: isAllPaid.value ? "Fully Settled" : "Outstanding Due",
     },
-];
-
-const totalAssessment = computed(() =>
-    assessments.reduce((sum, item) => sum + item.amountDue, 0),
-);
-
-const amountSettled = computed(() =>
-    assessments.reduce((sum, item) => sum + item.amountPaid, 0),
-);
-
-const netBalance = computed(() => totalAssessment.value - amountSettled.value);
+]);
 
 const formatCurrency = (value) =>
     new Intl.NumberFormat("en-PH", {
         style: "currency",
         currency: "PHP",
         minimumFractionDigits: 2,
-    }).format(value);
+    }).format(Math.max(0, value));
 
-const proceedToPayment = () => {
-    router.visit(route("kiosk.tuition-fee.payment-method"));
+const getItemBalance = (item) => {
+    return Math.max(0, item.total_amount - item.paid_amount);
+};
+
+const proceedToPayAll = () => {
+    router.visit(route("kiosk.payment-method", { pay_all: true }));
+};
+
+const proceedToPayItem = (balanceId) => {
+    router.visit(route("kiosk.payment-method", { balance_id: balanceId }));
 };
 </script>
 
@@ -89,6 +96,7 @@ const proceedToPayment = () => {
 
             <!-- Immediate action -->
             <section
+                v-if="!isAllPaid"
                 class="relative overflow-hidden border rounded-xl border-white/10 bg-[#f4f4f4] px-8 py-10 text-black md:px-12 md:py-12"
             >
                 <div
@@ -124,11 +132,50 @@ const proceedToPayment = () => {
                         </div>
 
                         <Button
-                            @click="proceedToPayment"
+                            @click="proceedToPayAll"
                             class="h-20 w-20 rounded-xl bg-black text-white hover:bg-black"
                         >
                             <ArrowRight class="size-7" />
                         </Button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- All Paid State -->
+            <section
+                v-else
+                class="relative overflow-hidden border rounded-xl border-emerald-500/30 bg-emerald-500/10 px-8 py-10 md:px-12 md:py-12"
+            >
+                <div
+                    class="relative flex flex-col gap-8 md:flex-row md:items-center md:justify-between"
+                >
+                    <div class="flex items-center gap-6">
+                        <div class="w-20 h-20 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                            <CheckCircle class="size-10 text-emerald-400" />
+                        </div>
+                        <div>
+                            <p
+                                class="text-[14px] font-semibold uppercase tracking-[0.35em] text-emerald-400"
+                            >
+                                Congratulations
+                            </p>
+                            <h3
+                                class="mt-3 max-w-135 text-5xl font-black leading-none tracking-tight text-white"
+                            >
+                                All balances have been fully settled
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <p
+                            class="text-[14px] font-semibold uppercase tracking-[0.35em] text-emerald-400"
+                        >
+                            Total Payable
+                        </p>
+                        <p class="mt-2 text-6xl font-black tracking-tight text-emerald-400">
+                            ₱0.00
+                        </p>
                     </div>
                 </div>
             </section>
@@ -145,39 +192,48 @@ const proceedToPayment = () => {
 
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <article
-                        v-for="item in assessments"
+                        v-for="item in studentBalances"
                         :key="item.id"
-                        class="border border-gray-500 rounded-lg bg-[#FFFFFF0D] p-6 transition-all duration-500 ease-in-out hover:border-white hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                        :class="[
+                            'border rounded-lg p-6 transition-all duration-500 ease-in-out',
+                            item.status === 'completed'
+                                ? 'border-emerald-500/30 bg-emerald-500/5 opacity-75'
+                                : 'border-gray-500 bg-[#FFFFFF0D] hover:border-white hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]'
+                        ]"
                     >
                         <div class="flex items-start justify-between gap-3">
                             <div>
                                 <h4
                                     class="text-3xl font-extrabold uppercase tracking-tight text-white"
                                 >
-                                    {{ item.title }}
+                                    {{ item.fee_name }}
                                 </h4>
                                 <p
-                                    class="mt-1 text-[10px] uppercase tracking-[0.25em] text-gray-500"
+                                    v-if="item.status === 'completed'"
+                                    class="mt-2 text-emerald-400 text-sm font-semibold uppercase tracking-wider"
                                 >
-                                    {{ item.description }}
+                                    ✓ Fully Paid
                                 </p>
                             </div>
                             <p class="text-4xl font-bold text-white">
-                                {{
-                                    formatCurrency(
-                                        item.amountDue - item.amountPaid,
-                                    )
-                                }}
+                                {{ formatCurrency(getItemBalance(item)) }}
                             </p>
                         </div>
 
                         <Button
-                            @click="proceedToPayment"
+                            v-if="item.status !== 'completed'"
+                            @click="proceedToPayItem(item.id)"
                             class="mt-8 w-full justify-between rounded-none border border-white/10 bg-transparent px-6 py-6 uppercase tracking-[0.25em] text-white hover:bg-white/5"
                         >
                             Pay Assessment
                             <ArrowRight class="size-4" />
                         </Button>
+                        <div
+                            v-else
+                            class="mt-8 w-full flex items-center justify-center rounded-none border border-emerald-500/20 bg-emerald-500/10 px-6 py-6 text-emerald-400 uppercase tracking-[0.25em]"
+                        >
+                            Payment Complete
+                        </div>
                     </article>
                 </div>
             </section>

@@ -7,6 +7,26 @@ import Footer from "@/Pages/components/layout/kiosk/Footer.vue";
 import IdleScanner from "@/components/IdleScanner.vue";
 import { computed } from "vue";
 
+const props = defineProps({
+    studentBalances: {
+        type: Object,
+        required: true,
+    },
+    totalAssessment : {
+        type : Number,
+        required : true,
+    },
+    amountSettled : {
+        type : Number,
+        required : true,
+    },
+    amountDue : {
+      type : Number,
+      required : true,
+    }
+})
+
+
 const page = usePage();
 const user = computed(() => page.props.auth.user === null);
 const isAuth = computed(() => Boolean(!user.value));
@@ -19,7 +39,7 @@ const isAuth = computed(() => Boolean(!user.value));
         <div class="min-h-screen flex flex-col">
             <HeaderSection />
             <main class="flex-1 flex overflow-hidden">
-                <OutstandingBalances />
+                <OutstandingBalances :studentBalances="studentBalances" :totalAssessment="totalAssessment" :amountSettled="amountSettled" :amountDue="amountDue" />
             </main>
             <Footer />
         </div>
