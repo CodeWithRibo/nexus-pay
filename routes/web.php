@@ -11,6 +11,10 @@ use App\Http\Controllers\Kiosk\CheckBalanceController;
 use App\Http\Controllers\Kiosk\ServiceSelectionController;
 use App\Http\Controllers\Kiosk\TuitionFeeController;
 use App\Http\Controllers\Kiosk\InitiatePaymentController;
+use App\Http\Controllers\Kiosk\PaymentMethodController;
+use App\Http\Controllers\Kiosk\DynamicCashInsertionController;
+use App\Http\Controllers\Kiosk\DynamicProcessingPaymentController;
+use App\Http\Controllers\Kiosk\DynamicReceiptController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -58,6 +62,15 @@ Route::middleware(['auth', 'student'])->group(function() {
     Route::get('kiosk/tuition-fee/receipt/{transaction_id}', ReceiptController::class)->name('kiosk.tuition-fee.receipt');
 
     Route::get('kiosk/outstanding-balance', CheckBalanceController::class)->name('kiosk.outstanding-balance');
+
+    // Dynamic Payment Method Routes (for any fee type)
+    Route::get('kiosk/payment-method', PaymentMethodController::class)->name('kiosk.payment-method');
+    Route::post('kiosk/payment-method/initiate', [InitiatePaymentController::class, 'initiate'])->name('kiosk.payment-method.initiate');
+    Route::get('kiosk/cash-insertion/{transaction_id}', DynamicCashInsertionController::class)->name('kiosk.cash-insertion');
+    Route::post('kiosk/start-processing/{transaction_id}', [DynamicProcessingPaymentController::class, 'start'])->name('kiosk.processing.start');
+    Route::get('kiosk/processing/{transaction_id}', [DynamicProcessingPaymentController::class, 'index'])->name('kiosk.processing.index');
+    Route::post('kiosk/processing/{transaction_id}', [DynamicProcessingPaymentController::class, 'process'])->name('kiosk.processing.process');
+    Route::get('kiosk/receipt/{transaction_id}', DynamicReceiptController::class)->name('kiosk.receipt');
 
 });
 
