@@ -22,12 +22,24 @@ watch(insertedAmount, (newVal) => {
 
 const props = defineProps({
     studAmountDue: {
-        type: String,
+        type: [String, Number],
         require: true,
     },
     transaction_id: {
         type: String,
         require: true,
+    },
+    description: {
+        type: String,
+        default: 'Payment',
+    },
+    balance_id: {
+        type: [Number, String, null],
+        default: null,
+    },
+    pay_all: {
+        type: Boolean,
+        default: false,
     },
 });
 
@@ -54,8 +66,15 @@ const handleConfirmPayment = () => {
 
     localStorage.removeItem("insertedAmount");
 
+    // Always use dynamic route if balance_id has a value or pay_all is true
+    const useDynamicRoute = Boolean(props.balance_id) || props.pay_all === true;
+    
+    const routeName = useDynamicRoute 
+        ? "kiosk.processing.start" 
+        : "kiosk.tuition-fee.processing.start";
+
     router.post(
-        route("kiosk.tuition-fee.processing.start", {
+        route(routeName, {
             transaction_id: props.transaction_id,
         }),
         {
