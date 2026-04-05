@@ -120,7 +120,7 @@ const DpaCondition = [
                                         described above.
                                     </Label>
                                 </div>
-                                <p class="mb-10 text-red-500"> {{ messageService }}</p>
+                                <p class="pl-9 mt-3 mb-10 text-red-500"> {{ messageService }}</p>
                                 <div class="space-x-5">
                                     <Button
                                         type="button"
