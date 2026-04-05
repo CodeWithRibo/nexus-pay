@@ -9,7 +9,10 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog/index.js";
 import { Button } from "@/components/ui/button/index.js";
-import { router } from "@inertiajs/vue3";
+import { Form, router } from "@inertiajs/vue3";
+import { Checkbox } from "@/components/ui/checkbox/index.js";
+import { Label } from "@/components/ui/label/index.js";
+
 
 const cardData = [
     {
@@ -25,16 +28,28 @@ const cardData = [
         routeName: route("kiosk.outstanding-balance"),
     },
 ];
-
+const acceptService = ref(false);
+const messageService = ref("");
 const isDpaOpen = ref(false);
 const serviceVal = ref(null);
 const handleService = (item) => {
     isDpaOpen.value = true;
     serviceVal.value = item;
 };
+
+
 const acceptServiceVal = () => {
-    router.visit(serviceVal.value.routeName);
+    if (!acceptService.value) {
+        messageService.value = 'Please check the "I Agree & Continue" box to proceed.'
+        setTimeout(() => {
+            messageService.value = ''
+        }, 2500);
+
+        return;
+    }
+
     isDpaOpen.value = false;
+    router.visit(serviceVal.value.routeName);
 };
 
 const DpaCondition = [
@@ -96,26 +111,33 @@ const DpaCondition = [
                                     {{ item }}
                                 </li>
                             </ul>
-                            <p class="w-[90%] mb-10">
-                                By proceeding, you consent to the collection and
-                                processing of your personal information as
-                                described above.
-                            </p>
-                            <div class="space-x-5">
-                                <Button
-                                    @click="acceptServiceVal"
-                                    class="w-72 h-20 hover:w-73 hover:h-21 text-2xl bg-white hover:bg-white border-gray-400 hover:border-white hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] text-black font-semibold transition-all duration-300"
-                                >
-                                    I Agree & Continue
-                                </Button>
-                                <Button
-                                    @click="isDpaOpen = false"
-                                    variant="outline"
-                                    class="w-72 h-20 hover:w-73 hover:h-21 text-2xl bg-transparent hover:bg-transparent border-gray-400 hover:border-white hover:text-white"
-                                >
-                                    Cancel
-                                </Button>
-                            </div>
+                            <Form @submit.prevent>
+                                <div class="flex items-center gap-5">
+                                    <Checkbox v-model="acceptService" />
+                                    <Label class="w-[90%] text-xl">
+                                        By proceeding, you consent to the collection and
+                                        processing of your personal information as
+                                        described above.
+                                    </Label>
+                                </div>
+                                <p class="mb-10 text-red-500"> {{ messageService }}</p>
+                                <div class="space-x-5">
+                                    <Button
+                                        type="button"
+                                        @click="acceptServiceVal"
+                                        class="w-72 h-20 hover:w-73 hover:h-21 text-2xl bg-white hover:bg-white border-gray-400 hover:border-white hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] text-black font-semibold transition-all duration-300"
+                                    >
+                                        I Agree & Continue
+                                    </Button>
+                                    <Button
+                                        @click="isDpaOpen = false"
+                                        variant="outline"
+                                        class="w-72 h-20 hover:w-73 hover:h-21 text-2xl bg-transparent hover:bg-transparent border-gray-400 hover:border-white hover:text-white"
+                                    >
+                                        Cancel
+                                    </Button>
+                                </div>
+                            </Form>
                         </DialogDescription>
                     </DialogHeader>
                 </DialogContent>
