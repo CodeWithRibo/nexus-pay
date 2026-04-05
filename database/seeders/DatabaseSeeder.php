@@ -33,9 +33,37 @@ class DatabaseSeeder extends Seeder
                 'credit_balance' => 0,
             ]);
 
-        $balance = StudentBalance::factory()->for($user)->create([
+        StudentBalance::factory()->for($user)->create([
             'fee_name' => 'Tuition Fee',
             'total_amount' => 42000.00,
+            'paid_amount' => 0,
+            'status' => 'pending',
+        ]);
+
+        StudentBalance::factory()->for($user)->create([
+            'fee_name' => 'Uniform Fee',
+            'total_amount' => 1932.00,
+            'paid_amount' => 0,
+            'status' => 'pending',
+        ]);
+
+        StudentBalance::factory()->for($user)->create([
+            'fee_name' => 'Field Trip Fee',
+            'total_amount' => 1600.00,
+            'paid_amount' => 0,
+            'status' => 'pending',
+        ]);
+
+        StudentBalance::factory()->for($user)->create([
+            'fee_name' => 'Special Exam Fee',
+            'total_amount' => 200,
+            'paid_amount' => 0,
+            'status' => 'pending',
+        ]);
+
+        StudentBalance::factory()->for($user)->create([
+            'fee_name' => 'Documents Fee',
+            'total_amount' => 100.00,
             'paid_amount' => 0,
             'status' => 'pending',
         ]);
