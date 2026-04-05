@@ -19,7 +19,7 @@ const countdown = ref(15);
 let idleTimer = null;
 let countdownInterval = null;
 
-const IDLE_LIMIT = 1000;
+const IDLE_LIMIT = 60000;
 
 const resetTimers = () => {
     if (isIdleModalOpen.value) return;
