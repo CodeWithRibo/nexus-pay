@@ -46,6 +46,7 @@ class ReceiptController extends Controller
 
         return Inertia::render('kiosk/Receipt', [
             'student_name' => $student->information->first_name.' '.$student->information->last_name ?? 'Unknown',
+            'student_email' => $student->email,
             'student_id' => $student->student_id,
             'reference_number' => $payment->reference_no,
             'fee_category' => optional($studentBalance)->fee_name,

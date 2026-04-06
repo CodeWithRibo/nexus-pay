@@ -48,6 +48,7 @@ class DynamicReceiptController extends Controller
         return Inertia::render('kiosk/Receipt', [
             'student_name' => $student->information->first_name . ' ' . $student->information->last_name ?? 'Unknown',
             'student_id' => $student->student_id,
+            'student_email' => $student->email,
             'reference_number' => $payment->reference_no,
             'fee_category' => $feeCategory,
             'amount_paid' => $payment->amount_paid,
