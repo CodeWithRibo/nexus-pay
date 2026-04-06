@@ -8,16 +8,16 @@ import LogoutModal from "@/components/LogoutModal.vue";
 import CancelTransactionModal from "@/components/CancelTransactionModal.vue";
 
 const props = defineProps({
-    isLocked : {
-        type : Boolean,
-        required : false,
+    isLocked: {
+        type: Boolean,
+        required: false,
     },
-    insertedAmount : {
-        type : Number,
-        required : false,
-        default : 0
-    }
-})
+    insertedAmount: {
+        type: Number,
+        required: false,
+        default: 0,
+    },
+});
 
 const page = usePage();
 
@@ -48,7 +48,9 @@ if (currentRouteName === "kiosk.outstanding-balance") {
 }
 if (
     currentRouteName === "kiosk.tuition-fee.payment-method" ||
-    currentRouteName === "kiosk.tuition-fee.cash-insertion"
+    currentRouteName === "kiosk.tuition-fee.cash-insertion" ||
+    currentRouteName === "kiosk.payment-method" ||
+    currentRouteName === "kiosk.cash-insertion"
 ) {
     showCancelTransactionBtn.value = true;
 }
@@ -78,7 +80,10 @@ const handleGoBack = () => {
 };
 
 const handleBillSummary = () => {
-    if (currentRouteName === "kiosk.tuition-fee.cash-insertion") {
+    if (
+        currentRouteName === "kiosk.tuition-fee.cash-insertion" ||
+        currentRouteName === "kiosk.cash-insertion"
+    ) {
         router.post(route("remove-transaction"));
         return;
     }
