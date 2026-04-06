@@ -98,12 +98,11 @@ class ProcessingPaymentController extends Controller
                 'student_balance_id' => $balance->id,
             ]);
 
-            $newTotal = $balance->total_amount - $request->amount_paid;
+            $newPaidAmount = $balance->paid_amount + $request->amount_paid;
 
             $balance->update([
-                'paid_amount' => $balance->paid_amount + $request->amount_paid,
-                'total_amount' => max($newTotal, 0),
-                'status' => $newTotal <= 0 ? 'completed' : 'pending',
+                'paid_amount' => $newPaidAmount,
+                'status' => $newPaidAmount >= $balance->total_amount ? 'completed' : 'pending',
             ]);
 
             User::query()
