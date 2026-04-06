@@ -20,6 +20,7 @@ const user = computed(() => page.props.auth.user === null);
 const isAuth = computed(() => Boolean(!user.value));
 const props = defineProps({
     student_name: String,
+    student_email: String,
     student_id: String,
     reference_number: String,
     fee_category: String,
@@ -112,6 +113,18 @@ const handleLeavingModal = () => {
                                         class="text-white text-base sm:text-lg font-medium"
                                     >
                                         {{ student_id }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p
+                                        class="text-gray-500 text-xs sm:text-sm mb-1"
+                                    >
+                                        Student Email
+                                    </p>
+                                    <p
+                                        class="text-white text-base sm:text-lg font-medium"
+                                    >
+                                        {{ student_email }}
                                     </p>
                                 </div>
                             </div>
@@ -226,7 +239,7 @@ const handleLeavingModal = () => {
                     </div>
 
                     <div
-                        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-4"
+                        class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-4"
                     >
                         <Button
                             class="w-full h-12 sm:h-14 lg:h-18 text-sm sm:text-base lg:text-lg bg-white text-black hover:bg-gray-200 font-semibold rounded-lg sm:rounded-xl flex items-center justify-center gap-2"
