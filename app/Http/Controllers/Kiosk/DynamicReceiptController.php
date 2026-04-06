@@ -43,7 +43,7 @@ class DynamicReceiptController extends Controller
         $studentBalance = $payment->studentBalance;
         $feeCategory = $studentBalance?->fee_name ?? 'Payment';
         $totalPaidToDate = $studentBalance?->paid_amount ?? 0;
-        $outstandingBalance = $studentBalance?->total_amount ?? 0;
+        $currentBalance = max($studentBalance?->total_amount  - $totalPaidToDate, 0);
 
         return Inertia::render('kiosk/Receipt', [
             'student_name' => $student->information->first_name . ' ' . $student->information->last_name ?? 'Unknown',
@@ -53,7 +53,7 @@ class DynamicReceiptController extends Controller
             'fee_category' => $feeCategory,
             'amount_paid' => $payment->amount_paid,
             'total_paid_to_date' => $totalPaidToDate,
-            'outstanding_balance' => $outstandingBalance,
+            'outstanding_balance' => $currentBalance,
             'transaction_date' => $payment->created_at->format('F d, Y \a\t h:i A'),
         ]);
     }

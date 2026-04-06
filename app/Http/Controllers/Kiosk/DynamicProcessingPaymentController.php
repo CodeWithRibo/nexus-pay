@@ -102,12 +102,11 @@ class DynamicProcessingPaymentController extends Controller
                     $balanceDue = $balance->total_amount - $balance->paid_amount;
                     $paymentForThis = min($amountToPay, $balanceDue);
 
-                    $newTotal = $balance->total_amount - $paymentForThis;
+                    $newPaidAmount = $balance->paid_amount + $paymentForThis;
 
                     $balance->update([
-                        'paid_amount' => $balance->paid_amount + $paymentForThis,
-                        'total_amount' => max($newTotal, 0),
-                        'status' => $newTotal <= 0 ? 'completed' : 'pending',
+                        'paid_amount' => $newPaidAmount,
+                        'status' => $newPaidAmount >= $balance->total_amount ? 'completed' : 'pending',
                     ]);
 
                     $amountToPay -= $paymentForThis;
@@ -133,12 +132,11 @@ class DynamicProcessingPaymentController extends Controller
                     'student_balance_id' => $balance->id,
                 ]);
 
-                $newTotal = $balance->total_amount - $request->amount_paid;
+                $newPaidAmount = $balance->paid_amount + $request->amount_paid;
 
                 $balance->update([
-                    'paid_amount' => $balance->paid_amount + $request->amount_paid,
-                    'total_amount' => max($newTotal, 0),
-                    'status' => $newTotal <= 0 ? 'completed' : 'pending',
+                    'paid_amount' => $newPaidAmount,
+                    'status' => $newPaidAmount >= $balance->total_amount ? 'completed' : 'pending',
                 ]);
             }
 
