@@ -13,13 +13,12 @@ import {
 import { Button } from "@/components/ui/button/index.js";
 
 const page = usePage();
-const student = computed(() => page.props.auth.user);
 const isIdleModalOpen = ref(false);
-const countdown = ref(15);
+const countdown = ref(10);
 let idleTimer = null;
 let countdownInterval = null;
 
-const IDLE_LIMIT = 60000;
+const IDLE_LIMIT = 15000;
 
 const resetTimers = () => {
     if (isIdleModalOpen.value) return;
