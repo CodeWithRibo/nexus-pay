@@ -24,7 +24,10 @@ const props = defineProps({
 
 const emit = defineEmits(["update:open", "logout", "goBack"]);
 
-if (currentRouteName === "kiosk.tuition-fee.receipt") {
+if (
+    currentRouteName === "kiosk.tuition-fee.receipt" ||
+    currentRouteName === "kiosk.receipt"
+) {
     handleReceiptRoute.value = true;
 }
 
