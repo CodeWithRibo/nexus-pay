@@ -2,6 +2,7 @@
 import { Head, router, usePage } from "@inertiajs/vue3";
 import { Label } from "@/components/ui/label/index.js";
 import { Button } from "@/components/ui/button/index.js";
+import { Switch } from "@/components/ui/switch/index.js";
 import { BanknoteArrowUp, QrCode, CheckCircle } from "lucide-vue-next";
 import { ref, computed } from "vue";
 import KioskLayout from "@/Pages/components/layout/KioskLayout.vue";
@@ -14,6 +15,8 @@ const user = computed(() => page.props.auth.user === null);
 const isAuth = computed(() => Boolean(!user.value));
 
 const isDisabled = ref(false);
+const useOverpayment = ref(false);
+
 const props = defineProps({
     student: {
         type: Object,
@@ -33,15 +36,50 @@ if (Number(props.student.current_balance) === 0) {
     isDisabled.value = true;
 }
 
-const formattedCurrency = new Intl.NumberFormat("en-PH", {
+const currentBalance = computed(() => {
+    const balance = Number(props.student.current_balance);
+    const overpayment = Number(props.student.over_payment || 0);
+
+    if (useOverpayment.value && overpayment > 0) {
+        return Math.max(balance - overpayment, 0);
+    }
+
+    return balance;
+});
+
+const appliedOverpayment = computed(() => {
+    const balance = Number(props.student.current_balance);
+    const overpayment = Number(props.student.over_payment || 0);
+
+    if (useOverpayment.value && overpayment > 0) {
+        return Math.min(balance, overpayment);
+    }
+
+    return 0;
+});
+
+const formattedCurrency = computed(() => {
+    return new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+    }).format(currentBalance.value);
+});
+
+const formattedOriginalBalance = new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
 }).format(Number(props.student.current_balance));
+
+const formattedOverpayment = new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+}).format(Number(props.student.over_payment || 0));
 
 const initiatePayment = () => {
     router.post(route("kiosk.payment-method.initiate"), {
         balance_id: props.balance_id,
         pay_all: props.pay_all,
+        use_overpayment: useOverpayment.value,
     });
 };
 </script>
@@ -54,9 +92,14 @@ const initiatePayment = () => {
             <HeaderSection />
             <main class="flex flex-1 w-full min-h-0 overflow-hidden">
                 <!--Aside-->
-                <div class="hidden md:flex flex-col w-120 border border-white/20">
+                <div
+                    class="hidden md:flex flex-col w-120 border border-white/20"
+                >
                     <div class="flex flex-col flex-1 overflow-y-auto">
-                        <nav class="flex-1 pt-15 pl-7 bg-[#FFFFFF0D] space-y-10">
+                        <nav
+                            class="flex-1 pl-7 bg-[#FFFFFF0D] space-y-10"
+                            :class="student.over_payment > 0 ? 'pt-7' : 'pt-15'"
+                        >
                             <div class="space-y-5">
                                 <h1
                                     class="text-[45px] font-bold tracking-tight text-white"
@@ -66,11 +109,11 @@ const initiatePayment = () => {
                                 <p
                                     class="text-gray-400 font-semibold text-[18px] w-[70%] tracking-wider"
                                 >
-                                    Please verify your details before proceeding to
-                                    payment
+                                    Please verify your details before proceeding
+                                    to payment
                                 </p>
                             </div>
-                            <div>
+                            <div class="mb-2">
                                 <div>
                                     <Label
                                         for="student_name"
@@ -116,19 +159,86 @@ const initiatePayment = () => {
                                         {{ student.description }}
                                     </h2>
                                     <div
-                                        class="w-[85%] border-b-[0.01rem] border-b-gray-500 mt-8 mb-4"
+                                        class="w-[85%] border-b-[0.01rem] border-b-gray-500 mt-8"
                                     ></div>
                                 </div>
                             </div>
-                            <div
-                                class="bg-[#FFFFFF14] rounded-lg p-5 w-92 text-white space-y-5"
-                            >
-                                <span class="text-gray-400 text-lg"
-                                    >Current Balance</span
+                            <div class="flex flex-col gap-3 mb-2">
+                                <div
+                                    v-if="Number(student.over_payment) > 0"
+                                    class="bg-[#FFFFFF0D] rounded-lg p-5 w-92 text-white space-y-4 border border-white/10"
                                 >
-                                <h1 class="text-5xl font-bold">
-                                    {{ formattedCurrency }}
-                                </h1>
+                                    <div
+                                        class="flex items-center justify-between"
+                                    >
+                                        <div>
+                                            <span
+                                                class="text-gray-400 text-sm uppercase tracking-wider"
+                                                >Available Overpayment</span
+                                            >
+                                            <h3
+                                                class="text-2xl font-bold text-emerald-400"
+                                            >
+                                                {{ formattedOverpayment }}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-between pt-2 border-t border-white/10"
+                                    >
+                                        <Label
+                                            for="use-overpayment"
+                                            class="text-base text-white cursor-pointer"
+                                        >
+                                            Use Overpayment
+                                        </Label>
+                                        <Switch
+                                            id="use-overpayment"
+                                            v-model:checked="useOverpayment"
+                                            :disabled="isDisabled"
+                                        />
+                                    </div>
+                                </div>
+                                <div
+                                    class="rounded-lg p-5 w-92 text-white space-y-5"
+                                    :class="
+                                        useOverpayment && appliedOverpayment > 0
+                                            ? 'bg-linear-to-br from-emerald-600/20 to-emerald-800/20 border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20'
+                                            : 'bg-[#FFFFFF14]'
+                                    "
+                                >
+                                    <span class="text-gray-400 text-lg">
+                                        {{
+                                            useOverpayment &&
+                                            appliedOverpayment > 0
+                                                ? "New Balance"
+                                                : "Current Balance"
+                                        }}
+                                    </span>
+                                    <div>
+                                        <h1
+                                            class="text-5xl font-bold transition-all duration-300"
+                                            :class="
+                                                useOverpayment &&
+                                                appliedOverpayment > 0
+                                                    ? 'text-emerald-300'
+                                                    : ''
+                                            "
+                                        >
+                                            {{ formattedCurrency }}
+                                        </h1>
+                                        <p
+                                            v-if="
+                                                useOverpayment &&
+                                                appliedOverpayment > 0
+                                            "
+                                            class="text-gray-400 text-sm mt-2 line-through"
+                                        >
+                                            Original:
+                                            {{ formattedOriginalBalance }}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </nav>
                     </div>
@@ -136,10 +246,14 @@ const initiatePayment = () => {
                 <!--Hero-->
                 <div class="flex flex-1 flex-col mt-20 space-y-10">
                     <div class="space-y-5">
-                        <h1 class="text-center text-5xl font-bold tracking-tighter">
+                        <h1
+                            class="text-center text-5xl font-bold tracking-tighter"
+                        >
                             Select Payment Method
                         </h1>
-                        <p class="text-center text-xl tracking-tight text-gray-400">
+                        <p
+                            class="text-center text-xl tracking-tight text-gray-400"
+                        >
                             Choose your preferred way to pay
                         </p>
                     </div>
@@ -169,8 +283,10 @@ const initiatePayment = () => {
                                         >Pay via Kiosk</span
                                     >
                                     <br />
-                                    <span class="text-gray-400 text-lg tracking-wide"
-                                        >Insert cash bills into the machine</span
+                                    <span
+                                        class="text-gray-400 text-lg tracking-wide"
+                                        >Insert cash bills into the
+                                        machine</span
                                     >
                                 </div>
                             </div>
@@ -188,7 +304,8 @@ const initiatePayment = () => {
                                     >Pay via Paymongo
                                 </span>
                                 <br />
-                                <span class="text-gray-400 text-lg tracking-wide"
+                                <span
+                                    class="text-gray-400 text-lg tracking-wide"
                                     >Scan qr code
                                 </span>
                             </div>
@@ -198,9 +315,11 @@ const initiatePayment = () => {
                         v-if="student.current_balance > 0"
                         class="flex flex-col items-center justify-center mt-20"
                     >
-                        <p class="text-gray-300 text-lg font-sembold tracking-wider">
-                            This kiosk is monitored for security. Please do not leave
-                            during a transaction
+                        <p
+                            class="text-gray-300 text-lg font-sembold tracking-wider"
+                        >
+                            This kiosk is monitored for security. Please do not
+                            leave during a transaction
                         </p>
                     </div>
 

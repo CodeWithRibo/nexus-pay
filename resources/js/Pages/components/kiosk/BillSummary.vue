@@ -1,11 +1,14 @@
 <script setup>
 import { Label } from "@/components/ui/label/index.js";
 import { Button } from "@/components/ui/button/index.js";
+import { Switch } from "@/components/ui/switch/index.js";
 import { BanknoteArrowUp, QrCode, CheckCircle } from "lucide-vue-next";
 import { router } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 const isDisabled = ref(false);
+const useOverpayment = ref(false);
+
 const props = defineProps({
     student: {
         type: Object,
@@ -17,10 +20,50 @@ if (Number(props.student.current_balance) === 0) {
     isDisabled.value = true;
 }
 
-const formattedCurrency = new Intl.NumberFormat("en-PH", {
+const currentBalance = computed(() => {
+    const balance = Number(props.student.current_balance);
+    const overpayment = Number(props.student.over_payment || 0);
+
+    if (useOverpayment.value && overpayment > 0) {
+        return Math.max(balance - overpayment, 0);
+    }
+
+    return balance;
+});
+
+const appliedOverpayment = computed(() => {
+    const balance = Number(props.student.current_balance);
+    const overpayment = Number(props.student.over_payment || 0);
+
+    if (useOverpayment.value && overpayment > 0) {
+        return Math.min(balance, overpayment);
+    }
+
+    return 0;
+});
+
+const formattedCurrency = computed(() => {
+    return new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+    }).format(currentBalance.value);
+});
+
+const formattedOriginalBalance = new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
 }).format(Number(props.student.current_balance));
+
+const formattedOverpayment = new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+}).format(Number(props.student.over_payment || 0));
+
+const initiatePayment = () => {
+    router.post(route("kiosk.tuition-fee.initiate-payment"), {
+        use_overpayment: useOverpayment.value,
+    });
+};
 </script>
 
 <template>
@@ -28,7 +71,10 @@ const formattedCurrency = new Intl.NumberFormat("en-PH", {
         <!--Aside-->
         <div class="hidden md:flex flex-col w-120 border border-white/20">
             <div class="flex flex-col flex-1 overflow-y-auto">
-                <nav class="flex-1 pt-15 pl-7 bg-[#FFFFFF0D] space-y-10">
+                <nav
+                    class="flex-1 pl-7 bg-[#FFFFFF0D] space-y-10"
+                    :class="student.over_payment > 0 ? 'pt-7' : 'pt-15'"
+                >
                     <div class="space-y-5">
                         <h1
                             class="text-[45px] font-bold tracking-tight text-white"
@@ -93,14 +139,69 @@ const formattedCurrency = new Intl.NumberFormat("en-PH", {
                         </div>
                     </div>
                     <div
-                        class="bg-[#FFFFFF14] rounded-lg p-5 w-92 text-white space-y-5"
+                        v-if="Number(student.over_payment) > 0"
+                        class="bg-[#FFFFFF0D] rounded-lg p-5 w-92 text-white space-y-4 border border-white/10"
                     >
-                        <span class="text-gray-400 text-lg"
-                            >Current Balance</span
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span
+                                    class="text-gray-400 text-sm uppercase tracking-wider"
+                                    >Available Overpayment</span
+                                >
+                                <h3 class="text-2xl font-bold text-emerald-400">
+                                    {{ formattedOverpayment }}
+                                </h3>
+                            </div>
+                        </div>
+                        <div
+                            class="flex items-center justify-between pt-2 border-t border-white/10"
                         >
-                        <h1 class="text-5xl font-bold">
-                            {{ formattedCurrency }}
-                        </h1>
+                            <Label
+                                for="use-overpayment-bill"
+                                class="text-base text-white cursor-pointer"
+                            >
+                                Use Overpayment
+                            </Label>
+                            <Switch
+                                id="use-overpayment-bill"
+                                v-model:checked="useOverpayment"
+                                :disabled="isDisabled"
+                            />
+                        </div>
+                    </div>
+                    <div
+                        class="rounded-lg p-5 w-92 text-white space-y-5"
+                        :class="
+                            useOverpayment && appliedOverpayment > 0
+                                ? 'bg-linear-to-br from-emerald-600/20 to-emerald-800/20 border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20'
+                                : 'bg-[#FFFFFF14]'
+                        "
+                    >
+                        <span class="text-gray-400 text-lg">
+                            {{
+                                useOverpayment && appliedOverpayment > 0
+                                    ? "New Balance"
+                                    : "Current Balance"
+                            }}
+                        </span>
+                        <div>
+                            <h1
+                                class="text-5xl font-bold transition-all duration-300"
+                                :class="
+                                    useOverpayment && appliedOverpayment > 0
+                                        ? 'text-emerald-300'
+                                        : ''
+                                "
+                            >
+                                {{ formattedCurrency }}
+                            </h1>
+                            <p
+                                v-if="useOverpayment && appliedOverpayment > 0"
+                                class="text-gray-400 text-sm mt-2 line-through"
+                            >
+                                Original: {{ formattedOriginalBalance }}
+                            </p>
+                        </div>
                     </div>
                 </nav>
             </div>
@@ -118,9 +219,7 @@ const formattedCurrency = new Intl.NumberFormat("en-PH", {
             <div class="flex gap-5 mx-10">
                 <Button
                     :disabled="isDisabled"
-                    @click="
-                        router.post(route('kiosk.tuition-fee.initiate-payment'))
-                    "
+                    @click="initiatePayment"
                     :class="{
                         'cursor-not-allowed': isDisabled,
                         'hover:border-white/60 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]':
