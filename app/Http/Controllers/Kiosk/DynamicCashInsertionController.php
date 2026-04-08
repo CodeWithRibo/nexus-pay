@@ -22,6 +22,10 @@ class DynamicCashInsertionController extends Controller
 
         $balanceId = session('payment_balance_id');
         $payAll = (bool) session('payment_pay_all', false);
+        $useOverpayment = session('use_overpayment', false);
+        
+        $user = auth()->user();
+        $userOverpayment = $user->over_payment ?? 0;
 
 
         if ($payAll) {
@@ -45,6 +49,10 @@ class DynamicCashInsertionController extends Controller
 
             $amountDue = $balance->total_amount - $balance->paid_amount;
             $description = $balance->fee_name;
+        }
+
+        if ($useOverpayment && $userOverpayment > 0) {
+            $amountDue = max($amountDue - $userOverpayment, 0);
         }
 
         return Inertia::render('kiosk/CashInsertion', [

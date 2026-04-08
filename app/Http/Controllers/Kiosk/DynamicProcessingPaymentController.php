@@ -86,12 +86,14 @@ class DynamicProcessingPaymentController extends Controller
 
         $balanceId = session('payment_balance_id');
         $payAll = (bool) session('payment_pay_all', false);
+        $useOverpayment = session('use_overpayment', false);
 
         $currentOverpayment = $request->over_payment;
         $previousOverpayment = User::find(auth()->id())->over_payment ?? 0;
 
-        DB::transaction(function () use ($request, $transaction_id, $payment, $balanceId, $payAll, $currentOverpayment, $previousOverpayment) {
-            $amountToPay = $request->amount_paid;
+        DB::transaction(function () use ($request, $transaction_id, $payment, $balanceId, $payAll, $currentOverpayment, $previousOverpayment, $useOverpayment) {
+            $cashPaid = $request->amount_paid;
+            $overpaymentUsed = 0;
 
             if ($payAll) {
                 $balances = StudentBalance::query()
@@ -101,12 +103,19 @@ class DynamicProcessingPaymentController extends Controller
                     ->get();
 
                 $firstBalance = $balances->first();
+                $amountToApply = $cashPaid;
+
+                if ($useOverpayment && $previousOverpayment > 0) {
+                    $totalDue = $balances->sum(fn($b) => $b->total_amount - $b->paid_amount);
+                    $overpaymentUsed = min($previousOverpayment, $totalDue);
+                    $amountToApply += $overpaymentUsed;
+                }
 
                 foreach ($balances as $balance) {
-                    if ($amountToPay <= 0) break;
+                    if ($amountToApply <= 0) break;
 
                     $balanceDue = $balance->total_amount - $balance->paid_amount;
-                    $paymentForThis = min($amountToPay, $balanceDue);
+                    $paymentForThis = min($amountToApply, $balanceDue);
 
                     $newPaidAmount = $balance->paid_amount + $paymentForThis;
 
@@ -115,12 +124,12 @@ class DynamicProcessingPaymentController extends Controller
                         'status' => $newPaidAmount >= $balance->total_amount ? 'completed' : 'pending',
                     ]);
 
-                    $amountToPay -= $paymentForThis;
+                    $amountToApply -= $paymentForThis;
                 }
 
                 $payment->update([
                     'status' => 'completed',
-                    'amount_paid' => $request->amount_paid,
+                    'amount_paid' => $cashPaid,
                     'reference_no' => 'K-' . strtoupper(Str::random(8)),
                     'student_balance_id' => $firstBalance?->id,
                 ]);
@@ -131,14 +140,22 @@ class DynamicProcessingPaymentController extends Controller
                     ->lockForUpdate()
                     ->firstOrFail();
 
+                $totalAmountApplied = $cashPaid;
+
+                if ($useOverpayment && $previousOverpayment > 0) {
+                    $balanceDue = $balance->total_amount - $balance->paid_amount;
+                    $overpaymentUsed = min($previousOverpayment, $balanceDue);
+                    $totalAmountApplied += $overpaymentUsed;
+                }
+
                 $payment->update([
                     'status' => 'completed',
-                    'amount_paid' => $request->amount_paid,
+                    'amount_paid' => $cashPaid,
                     'reference_no' => 'K-' . strtoupper(Str::random(8)),
                     'student_balance_id' => $balance->id,
                 ]);
 
-                $newPaidAmount = $balance->paid_amount + $request->amount_paid;
+                $newPaidAmount = $balance->paid_amount + $totalAmountApplied;
 
                 $balance->update([
                     'paid_amount' => $newPaidAmount,
@@ -146,9 +163,13 @@ class DynamicProcessingPaymentController extends Controller
                 ]);
             }
 
+            $newOverpaymentBalance = $previousOverpayment - $overpaymentUsed + $currentOverpayment;
+
             User::query()
                 ->where('id', auth()->id())
-                ->update(['over_payment' => $previousOverpayment + $currentOverpayment]);
+                ->update(['over_payment' => $newOverpaymentBalance]);
+                
+            session()->put("overpayment_used_{$transaction_id}", $overpaymentUsed);
         });
 
         session()->put("current_overpayment_{$transaction_id}", $currentOverpayment);
@@ -156,6 +177,7 @@ class DynamicProcessingPaymentController extends Controller
         session()->forget("payment_data_{$transaction_id}");
         session()->forget('payment_balance_id');
         session()->forget('payment_pay_all');
+        session()->forget('use_overpayment');
 
         $request->session()->flash('success', 'Your transaction is complete. Please wait for your printed receipt below.');
         return redirect()->route('kiosk.receipt', ['transaction_id' => $transaction_id]);

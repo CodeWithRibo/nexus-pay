@@ -63,7 +63,7 @@ Route::middleware(['auth', 'student'])->group(function() {
 
     Route::get('kiosk/outstanding-balance', CheckBalanceController::class)->name('kiosk.outstanding-balance');
 
-    // Dynamic Payment Method Routes (for any fee type)
+//------------Dynamic Payment Method---------------//
     Route::get('kiosk/payment-method', PaymentMethodController::class)->name('kiosk.payment-method');
     Route::post('kiosk/payment-method/initiate', [InitiatePaymentController::class, 'initiate'])->name('kiosk.payment-method.initiate');
     Route::get('kiosk/cash-insertion/{transaction_id}', DynamicCashInsertionController::class)->name('kiosk.cash-insertion');

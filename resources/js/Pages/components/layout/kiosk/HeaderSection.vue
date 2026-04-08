@@ -38,7 +38,8 @@ const currentRouteName = route().current();
 
 if (
     currentRouteName === "kiosk.service-selection" ||
-    currentRouteName === "kiosk.tuition-fee.receipt"
+    currentRouteName === "kiosk.tuition-fee.receipt" ||
+    currentRouteName === "kiosk.receipt"
 ) {
     showLogoutBtn.value = true;
 }

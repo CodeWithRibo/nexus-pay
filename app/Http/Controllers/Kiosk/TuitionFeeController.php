@@ -32,6 +32,7 @@ class TuitionFeeController extends Controller
                 'student_id' => $student->student_id,
                 'description' => $tuitionBalance->fee_name ?? 'Tuition Fee',
                 'current_balance' => $currentBalance,
+                'over_payment' => $student->over_payment ?? 0,
             ]
         ]);
     }

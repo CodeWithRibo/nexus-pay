@@ -28,6 +28,7 @@ const props = defineProps({
     total_paid_to_date: Number,
     outstanding_balance: Number,
     current_overpayment: Number,
+    overpayment_used: Number,
     total_overpayment: Number,
     transaction_date: String,
 });
@@ -175,6 +176,12 @@ const handleLeavingModal = () => {
                                         class="text-white text-xl sm:text-2xl font-bold"
                                     >
                                         {{ formatCurrency(amount_paid) }}
+                                    </p>
+                                    <p
+                                        v-if="overpayment_used > 0"
+                                        class="text-emerald-400 text-xs sm:text-sm mt-1"
+                                    >
+                                        + {{ formatCurrency(overpayment_used) }} from overpayment
                                     </p>
                                 </div>
                                 <div>

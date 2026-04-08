@@ -46,6 +46,7 @@ class ReceiptController extends Controller
         $currentBalance = max($totalAmount - $totalPaidToDate, 0);
         
         $currentOverpayment = session("current_overpayment_{$transaction_id}", 0);
+        $overpaymentUsed = session("overpayment_used_{$transaction_id}", 0);
         $totalOverpayment = $student->over_payment ?? 0;
 
         return Inertia::render('kiosk/Receipt', [
@@ -58,6 +59,7 @@ class ReceiptController extends Controller
             'total_paid_to_date' => $totalPaidToDate,
             'outstanding_balance' => $currentBalance,
             'current_overpayment' => $currentOverpayment,
+            'overpayment_used' => $overpaymentUsed,
             'total_overpayment' => $totalOverpayment,
             'transaction_date' => $payment->created_at->format('F d, Y \a\t h:i A'),
         ]);

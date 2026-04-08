@@ -13,7 +13,7 @@ const props = defineProps({
         type: Number,
         required: true,
     },
-    credit_balance: {
+    over_payment: {
         type: Number,
         required: true,
     },
@@ -76,7 +76,7 @@ const processPayment = () => {
         }),
         {
             amount_paid: props.amount_paid,
-            credit_balance: props.credit_balance,
+            over_payment: props.over_payment,
         },
         {
             preserveScroll: true,

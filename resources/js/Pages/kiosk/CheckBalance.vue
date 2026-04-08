@@ -12,20 +12,23 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    totalAssessment : {
-        type : Number,
-        required : true,
+    totalAssessment: {
+        type: Number,
+        required: true,
     },
-    amountSettled : {
-        type : Number,
-        required : true,
+    amountSettled: {
+        type: Number,
+        required: true,
     },
-    amountDue : {
-      type : Number,
-      required : true,
-    }
-})
-
+    amountDue: {
+        type: Number,
+        required: true,
+    },
+    overPayment: {
+        type: Number,
+        required: true,
+    },
+});
 
 const page = usePage();
 const user = computed(() => page.props.auth.user === null);
@@ -39,7 +42,13 @@ const isAuth = computed(() => Boolean(!user.value));
         <div class="min-h-screen flex flex-col">
             <HeaderSection />
             <main class="flex-1 flex overflow-hidden">
-                <OutstandingBalances :studentBalances="studentBalances" :totalAssessment="totalAssessment" :amountSettled="amountSettled" :amountDue="amountDue" />
+                <OutstandingBalances
+                    :overPayment="overPayment"
+                    :studentBalances="studentBalances"
+                    :totalAssessment="totalAssessment"
+                    :amountSettled="amountSettled"
+                    :amountDue="amountDue"
+                />
             </main>
             <Footer />
         </div>

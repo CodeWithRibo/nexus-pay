@@ -86,36 +86,52 @@ class ProcessingPaymentController extends Controller
 
         $currentOverpayment = $request->over_payment;
         $previousOverpayment = User::find(auth()->id())->over_payment ?? 0;
+        $useOverpayment = session('use_overpayment', false);
 
-        DB::transaction(function () use ($request, $transaction_id, $payment, $currentOverpayment, $previousOverpayment) {
+        DB::transaction(function () use ($request, $transaction_id, $payment, $currentOverpayment, $previousOverpayment, $useOverpayment) {
             $balance = StudentBalance::query()
                 ->where('user_id', auth()->id())
                 ->where('fee_name', 'Tuition Fee')
                 ->lockForUpdate()
                 ->firstOrFail();
 
+            $cashPaid = $request->amount_paid;
+            $overpaymentUsed = 0;
+            $totalAmountApplied = $cashPaid;
+
+            if ($useOverpayment && $previousOverpayment > 0) {
+                $balanceDue = $balance->total_amount - $balance->paid_amount;
+                $overpaymentUsed = min($previousOverpayment, $balanceDue);
+                $totalAmountApplied = $cashPaid + $overpaymentUsed;
+            }
+
             $payment->update([
                 'status' => 'completed',
-                'amount_paid' => $request->amount_paid,
+                'amount_paid' => $cashPaid,
                 'reference_no' => 'K-' . strtoupper(Str::random(8)),
                 'student_balance_id' => $balance->id,
             ]);
 
-            $newPaidAmount = $balance->paid_amount + $request->amount_paid;
+            $newPaidAmount = $balance->paid_amount + $totalAmountApplied;
 
             $balance->update([
                 'paid_amount' => $newPaidAmount,
                 'status' => $newPaidAmount >= $balance->total_amount ? 'completed' : 'pending',
             ]);
 
+            $newOverpaymentBalance = $previousOverpayment - $overpaymentUsed + $currentOverpayment;
+
             User::query()
                 ->where('id', auth()->id())
-                ->update(['over_payment' => $previousOverpayment + $currentOverpayment]);
+                ->update(['over_payment' => $newOverpaymentBalance]);
+                
+            session()->put("overpayment_used_{$transaction_id}", $overpaymentUsed);
         });
 
         session()->put("current_overpayment_{$transaction_id}", $currentOverpayment);
 
         session()->forget("payment_data_{$transaction_id}");
+        session()->forget('use_overpayment');
 
         $request->session()->flash('success', 'Your transaction is complete. Please wait for your printed receipt below.');
         return redirect()->route('kiosk.tuition-fee.receipt', ['transaction_id' => $transaction_id]);
