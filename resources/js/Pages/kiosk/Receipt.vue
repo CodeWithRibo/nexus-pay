@@ -27,6 +27,8 @@ const props = defineProps({
     amount_paid: String,
     total_paid_to_date: Number,
     outstanding_balance: Number,
+    current_overpayment: Number,
+    total_overpayment: Number,
     transaction_date: String,
 });
 
@@ -175,66 +177,106 @@ const handleLeavingModal = () => {
                                         {{ formatCurrency(amount_paid) }}
                                     </p>
                                 </div>
+                                <div>
+                                    <p
+                                        class="text-gray-500 text-xs sm:text-sm mb-1"
+                                    >
+                                        Transaction Date
+                                    </p>
+                                    <p
+                                        class="text-white text-xl sm:text-2xl font-bold"
+                                    >
+                                        {{ transaction_date }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div
-                        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-                    >
-                        <div
-                            class="bg-[#0f0f0f] border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 space-y-3 sm:space-y-4"
-                        >
-                            <p
-                                class="text-gray-500 text-xs uppercase tracking-wider font-semibold"
+                    <div class="grid grid-cols-2 gap-5">
+                        <!--Total Paid Date-->
+                        <div class="grid grid-cols-2 gap-4 sm:gap-6">
+                            <div
+                                class="bg-[#0f0f0f] border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 space-y-3 sm:space-y-4"
                             >
-                                Total Paid to Date
-                            </p>
-                            <p
-                                class="text-white text-2xl sm:text-3xl font-bold"
-                            >
-                                {{ formatCurrency(total_paid_to_date) }}
-                            </p>
-                            <p class="text-gray-400 text-xs sm:text-sm">
-                                Cumulative amount paid for this fee
-                            </p>
-                        </div>
+                                <p
+                                    class="text-gray-500 text-xs uppercase tracking-wider font-semibold"
+                                >
+                                    Total Paid to Date
+                                </p>
+                                <p
+                                    class="text-white text-2xl sm:text-3xl font-bold"
+                                >
+                                    {{ formatCurrency(total_paid_to_date) }}
+                                </p>
+                                <p class="text-gray-400 text-xs sm:text-sm">
+                                    Cumulative amount paid for this fee
+                                </p>
+                            </div>
 
-                        <div
-                            class="bg-[#0f0f0f] border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 space-y-3 sm:space-y-4"
-                        >
-                            <p
-                                class="text-gray-500 text-xs uppercase tracking-wider font-semibold"
+                            <div
+                                class="bg-[#0f0f0f] border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 space-y-3 sm:space-y-4"
                             >
-                                Outstanding Balance
-                            </p>
-                            <p
-                                class="text-white text-2xl sm:text-3xl font-bold"
-                            >
-                                {{ formatCurrency(outstanding_balance) }}
-                            </p>
-                            <p class="text-gray-400 text-xs sm:text-sm">
-                                Remaining balance to pay {{ fee_category }}
-                            </p>
+                                <p
+                                    class="text-gray-500 text-xs uppercase tracking-wider font-semibold"
+                                >
+                                    Outstanding Balance
+                                </p>
+                                <p
+                                    class="text-white text-2xl sm:text-3xl font-bold"
+                                >
+                                    {{ formatCurrency(outstanding_balance) }}
+                                </p>
+                                <p class="text-gray-400 text-xs sm:text-sm">
+                                    Remaining balance to pay {{ fee_category }}
+                                </p>
+                            </div>
                         </div>
-
+                        <!--OverPayment-->
                         <div
-                            class="bg-[#0f0f0f] border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 space-y-3 sm:space-y-4"
+                            class="bg-[#0f0f0f] border border-white/10 rounded-xl sm:rounded-2xl p-5 sm:p-8"
                         >
-                            <p
-                                class="text-gray-500 text-xs uppercase tracking-wider font-semibold flex items-center gap-2"
+                            <div
+                                class="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-between items-start sm:items-center"
                             >
-                                <Calendar class="size-3 sm:size-4" />
-                                Transaction Date
-                            </p>
-                            <p
-                                class="text-white text-base sm:text-lg font-medium"
-                            >
-                                {{ transaction_date }}
-                            </p>
-                            <p class="text-gray-400 text-xs sm:text-sm">
-                                Date and time of payment
-                            </p>
+                                <div class="space-y-2 flex-1 w-full">
+                                    <p
+                                        class="text-zinc-500 text-xs uppercase tracking-widest font-semibold"
+                                    >
+                                        Current Overpayment
+                                    </p>
+                                    <p class="text-white text-3xl font-bold">
+                                        {{
+                                            formatCurrency(current_overpayment)
+                                        }}
+                                    </p>
+                                    <p class="text-zinc-400 text-sm">
+                                        From this transaction
+                                    </p>
+                                </div>
+
+                                <div
+                                    class="hidden sm:block w-px h-16 bg-white/10"
+                                ></div>
+                                <div
+                                    class="block sm:hidden w-full h-px bg-white/10"
+                                ></div>
+                                <div class="space-y-2 flex-1 w-full">
+                                    <p
+                                        class="text-emerald-500 text-xs uppercase tracking-widest font-semibold"
+                                    >
+                                        Total Account Credit
+                                    </p>
+                                    <p class="text-white text-3xl font-bold">
+                                        {{ formatCurrency(total_overpayment) }}
+                                    </p>
+                                    <p
+                                        class="text-zinc-400 text-sm leading-tight"
+                                    >
+                                        Available for future transactions
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
