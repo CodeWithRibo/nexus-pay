@@ -18,7 +18,7 @@ class ProcessingPaymentController extends Controller
     {
         $request->validate([
             'amount_paid' => 'required|numeric|min:0',
-            'credit_balance' => 'required|numeric',
+            'over_payment' => 'required|numeric',
         ]);
 
         $payment = Payment::query()
@@ -32,7 +32,7 @@ class ProcessingPaymentController extends Controller
 
         session()->put("payment_data_{$transaction_id}", [
             'amount_paid' => $request->amount_paid,
-            'credit_balance' => $request->credit_balance,
+            'over_payment' => $request->over_payment,
         ]);
 
         return redirect()->route('kiosk.tuition-fee.processing.index', [
@@ -61,7 +61,7 @@ class ProcessingPaymentController extends Controller
         return Inertia::render('kiosk/ProcessingPayment', [
             'transaction_id' => $transaction_id,
             'amount_paid' => (float) $paymentData['amount_paid'],
-            'credit_balance' => (float) $paymentData['credit_balance'],
+            'over_payment' => (float) $paymentData['over_payment'],
         ]);
     }
 
@@ -72,7 +72,7 @@ class ProcessingPaymentController extends Controller
     {
         $request->validate([
             'amount_paid' => 'required|numeric|min:0',
-            'credit_balance' => 'required|numeric',
+            'over_payment' => 'required|numeric',
         ]);
 
         $payment = Payment::query()
@@ -84,7 +84,10 @@ class ProcessingPaymentController extends Controller
             return redirect()->route('kiosk.landing-screen');
         }
 
-        DB::transaction(function () use ($request, $transaction_id, $payment) {
+        $currentOverpayment = $request->over_payment;
+        $previousOverpayment = User::find(auth()->id())->over_payment ?? 0;
+
+        DB::transaction(function () use ($request, $transaction_id, $payment, $currentOverpayment, $previousOverpayment) {
             $balance = StudentBalance::query()
                 ->where('user_id', auth()->id())
                 ->where('fee_name', 'Tuition Fee')
@@ -107,8 +110,10 @@ class ProcessingPaymentController extends Controller
 
             User::query()
                 ->where('id', auth()->id())
-                ->update(['credit_balance' => $request->credit_balance]);
+                ->update(['over_payment' => $previousOverpayment + $currentOverpayment]);
         });
+
+        session()->put("current_overpayment_{$transaction_id}", $currentOverpayment);
 
         session()->forget("payment_data_{$transaction_id}");
 
