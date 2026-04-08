@@ -18,7 +18,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'credit_balance'
+        'over_payment'
     ];
 
     public function information(): HasOne
