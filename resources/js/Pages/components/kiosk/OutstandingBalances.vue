@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { router } from "@inertiajs/vue3";
 import { Button } from "@/components/ui/button/index.js";
-import { ArrowRight, CheckCircle } from "lucide-vue-next";
+import { ArrowRight, CheckCircle, CircleCheckBig } from "lucide-vue-next";
 
 const props = defineProps({
     studentBalances: {
@@ -18,6 +18,10 @@ const props = defineProps({
         required: true,
     },
     amountDue: {
+        type: Number,
+        required: true,
+    },
+    overPayment: {
         type: Number,
         required: true,
     },
@@ -41,6 +45,11 @@ const studDataBalances = computed(() => [
         title: "Net Balances",
         amount: netBalance.value,
         description: isAllPaid.value ? "Fully Settled" : "Outstanding Due",
+    },
+    {
+        title: "Overpayment",
+        amount: props.overPayment,
+        description: "Available for overpayment",
     },
 ]);
 
@@ -67,7 +76,7 @@ const proceedToPayItem = (balanceId) => {
 <template>
     <section class="flex-1 overflow-y-auto px-6 py-8 md:px-10 md:py-10">
         <div class="mx-auto w-full max-w-7xl space-y-10">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div class="grid gap-4 grid-cols-4">
                 <article
                     v-for="item in studDataBalances"
                     class="border border-gray-500 rounded-lg bg-[#FFFFFF0D] px-6 py-7 transition-all duration-500 ease-in-out hover:border-white hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
@@ -83,7 +92,7 @@ const proceedToPayItem = (balanceId) => {
                         {{ formatCurrency(item.amount) }}
                     </h2>
                     <p
-                        class="mt-1 text-[13px] uppercase tracking-[0.3em] text-gray-600"
+                        class="mt-1 text-[12px] uppercase tracking-[0.3em] text-gray-600"
                     >
                         {{ item.description }}
                     </p>
@@ -208,9 +217,10 @@ const proceedToPayItem = (balanceId) => {
                                 </h4>
                                 <p
                                     v-if="item.status === 'completed'"
-                                    class="mt-2 text-emerald-400 text-sm font-semibold uppercase tracking-wider"
+                                    class="flex items-center gap-3 mt-2 text-emerald-400 text-sm font-semibold uppercase tracking-wider"
                                 >
-                                    ✓ Fully Paid
+                                    <CircleCheckBig class="size-7" />
+                                    <span class="text-lg">Fully Paid</span>
                                 </p>
                             </div>
                             <p class="text-4xl font-bold text-white">
