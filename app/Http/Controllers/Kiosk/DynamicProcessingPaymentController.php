@@ -17,7 +17,7 @@ class DynamicProcessingPaymentController extends Controller
     {
         $request->validate([
             'amount_paid' => 'required|numeric|min:0',
-            'credit_balance' => 'required|numeric',
+            'over_payment' => 'required|numeric',
         ]);
 
         $payment = Payment::query()
@@ -31,7 +31,7 @@ class DynamicProcessingPaymentController extends Controller
 
         session()->put("payment_data_{$transaction_id}", [
             'amount_paid' => $request->amount_paid,
-            'credit_balance' => $request->credit_balance,
+            'over_payment' => $request->over_payment,
         ]);
 
         return redirect()->route('kiosk.processing.index', [
@@ -60,16 +60,19 @@ class DynamicProcessingPaymentController extends Controller
         return Inertia::render('kiosk/ProcessingPayment', [
             'transaction_id' => $transaction_id,
             'amount_paid' => (float) $paymentData['amount_paid'],
-            'credit_balance' => (float) $paymentData['credit_balance'],
+            'over_payment' => (float) $paymentData['over_payment'],
             'use_dynamic_route' => true,
         ]);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function process(Request $request, $transaction_id)
     {
         $request->validate([
             'amount_paid' => 'required|numeric|min:0',
-            'credit_balance' => 'required|numeric',
+            'over_payment' => 'required|numeric',
         ]);
 
         $payment = Payment::query()
@@ -84,7 +87,10 @@ class DynamicProcessingPaymentController extends Controller
         $balanceId = session('payment_balance_id');
         $payAll = (bool) session('payment_pay_all', false);
 
-        DB::transaction(function () use ($request, $transaction_id, $payment, $balanceId, $payAll) {
+        $currentOverpayment = $request->over_payment;
+        $previousOverpayment = User::find(auth()->id())->over_payment ?? 0;
+
+        DB::transaction(function () use ($request, $transaction_id, $payment, $balanceId, $payAll, $currentOverpayment, $previousOverpayment) {
             $amountToPay = $request->amount_paid;
 
             if ($payAll) {
@@ -142,8 +148,10 @@ class DynamicProcessingPaymentController extends Controller
 
             User::query()
                 ->where('id', auth()->id())
-                ->update(['credit_balance' => $request->credit_balance]);
+                ->update(['over_payment' => $previousOverpayment + $currentOverpayment]);
         });
+
+        session()->put("current_overpayment_{$transaction_id}", $currentOverpayment);
 
         session()->forget("payment_data_{$transaction_id}");
         session()->forget('payment_balance_id');
