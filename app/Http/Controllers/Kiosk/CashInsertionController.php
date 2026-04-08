@@ -21,10 +21,18 @@ class CashInsertionController extends Controller
             return redirect()->route('kiosk.landing-screen');
         }
 
+        $useOverpayment = session('use_overpayment', false);
+        $user = auth()->user();
+        $userOverpayment = $user->over_payment ?? 0;
+
         $studAmountDue = StudentBalance::query()
         ->where('user_id', auth()->id())
         ->where('fee_name', 'Tuition Fee')
         ->sum('total_amount');
+
+        if ($useOverpayment && $userOverpayment > 0) {
+            $studAmountDue = max($studAmountDue - $userOverpayment, 0);
+        }
 
         return Inertia::render('kiosk/CashInsertion', [
             'studAmountDue' => $studAmountDue,
