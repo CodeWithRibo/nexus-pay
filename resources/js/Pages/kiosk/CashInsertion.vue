@@ -15,6 +15,7 @@ const manualAmount = ref("");
 const page = usePage();
 const user = computed(() => page.props.auth.user === null);
 const isAuth = computed(() => Boolean(!user.value));
+const MAX_OVERPAYMENT = 500;
 
 watch(insertedAmount, (newVal) => {
     localStorage.setItem("insertedAmount", newVal);
@@ -31,7 +32,7 @@ const props = defineProps({
     },
     description: {
         type: String,
-        default: 'Payment',
+        default: "Payment",
     },
     balance_id: {
         type: [Number, String, null],
@@ -62,15 +63,34 @@ const handleConfirmPayment = () => {
         0,
     );
 
+    if (props.studAmountDue === 0) {
+        localStorage.removeItem("insertedAmount");
+
+        const useDynamicRoute =
+            Boolean(props.balance_id) || props.pay_all === true;
+        const routeName = useDynamicRoute
+            ? "kiosk.processing.start"
+            : "kiosk.tuition-fee.processing.start";
+
+        router.post(
+            route(routeName, {
+                transaction_id: props.transaction_id,
+            }),
+            {
+                amount_paid: 0,
+                over_payment: 0,
+            },
+        );
+        return;
+    }
+
     if (insertedAmount.value <= 0) return false;
 
     localStorage.removeItem("insertedAmount");
 
-    // Always use dynamic route if balance_id has a value or pay_all is true
     const useDynamicRoute = Boolean(props.balance_id) || props.pay_all === true;
-    
-    const routeName = useDynamicRoute 
-        ? "kiosk.processing.start" 
+    const routeName = useDynamicRoute
+        ? "kiosk.processing.start"
         : "kiosk.tuition-fee.processing.start";
 
     router.post(
@@ -79,7 +99,7 @@ const handleConfirmPayment = () => {
         }),
         {
             amount_paid: insertedAmount.value,
-            credit_balance: creditBalance,
+            over_payment: creditBalance,
         },
     );
 };
@@ -101,10 +121,9 @@ const handleManualInsert = () => {
         return;
     }
 
-    insertedAmount.value = Math.min(
-        insertedAmount.value + amount,
-        props.studAmountDue,
-    );
+    if (!handleOverpayment(amount)) return;
+
+    insertedAmount.value += amount;
     manualAmount.value = "";
 
     toast.success(`₱${amount}.00 Accepted`, {
@@ -113,7 +132,13 @@ const handleManualInsert = () => {
         position: "top-center",
     });
 
-    if (insertedAmount.value >= props.studAmountDue) {
+    const creditBalance = insertedAmount.value - props.studAmountDue;
+    if (creditBalance >= MAX_OVERPAYMENT) {
+        toast.success("Maximum Credit Reached", {
+            description: `₱${creditBalance}.00 overpayment limit reached. Please click "Confirm Payment" below to finish your transaction`,
+            duration: 4500,
+            position: "top-center",
+        });
         isSubmitting.value = true;
     }
 };
@@ -121,10 +146,8 @@ const handleManualInsert = () => {
 const addPresetAmount = (amount) => {
     if (isSubmitting.value) return;
 
-    insertedAmount.value = Math.min(
-        insertedAmount.value + amount,
-        props.studAmountDue,
-    );
+    if (!handleOverpayment(amount)) return;
+    insertedAmount.value += amount;
     manualAmount.value = "";
 
     toast.success(`₱${amount}.00 Accepted`, {
@@ -133,10 +156,32 @@ const addPresetAmount = (amount) => {
         position: "top-center",
     });
 
-    if (insertedAmount.value >= props.studAmountDue) {
+    const creditBalance = insertedAmount.value - props.studAmountDue;
+    if (creditBalance >= MAX_OVERPAYMENT) {
+        toast.success("Maximum Credit Reached", {
+            description: `₱${creditBalance}.00 overpayment limit reached. Please click "Confirm Payment" below to finish your transaction`,
+            duration: 4500,
+            position: "top-center",
+        });
         isSubmitting.value = true;
     }
 };
+
+function handleOverpayment(amount) {
+    const remainingAmount = props.studAmountDue - insertedAmount.value;
+    const creditBalance = amount - remainingAmount;
+
+    if (creditBalance > MAX_OVERPAYMENT) {
+        toast.error("This bill is too large!", {
+            description: `Please use a smaller bill (Max ₱${MAX_OVERPAYMENT} overpayment).`,
+            duration: 2000,
+            position: "top-center",
+        });
+        manualAmount.value = "";
+        return false;
+    }
+    return true;
+}
 </script>
 
 <template>
@@ -153,11 +198,19 @@ const addPresetAmount = (amount) => {
             >
                 <div class="text-center space-y-2 mb-8">
                     <h1 class="text-6xl font-bold tracking-tight uppercase">
-                        Insert Cash
+                        {{
+                            studAmountDue === 0
+                                ? "Payment Ready"
+                                : "Insert Cash"
+                        }}
                     </h1>
-                    <p class="text-gray-400 text-base">
+                    <p class="text-gray-400 text-base" v-if="studAmountDue > 0">
                         Please insert bills into the lighted slot below the
                         screen.
+                    </p>
+                    <p class="text-emerald-400 text-lg font-semibold" v-else>
+                        Your balance has been fully covered by overpayment.
+                        Click "Confirm Payment" to complete.
                     </p>
                 </div>
 
@@ -194,7 +247,10 @@ const addPresetAmount = (amount) => {
                             </div>
                         </div>
 
-                        <div class="w-full max-w-md space-y-3">
+                        <div
+                            class="w-full max-w-md space-y-3"
+                            v-if="studAmountDue > 0"
+                        >
                             <div class="flex gap-2">
                                 <input
                                     v-model="manualAmount"
@@ -224,6 +280,23 @@ const addPresetAmount = (amount) => {
                                 >
                                     ₱{{ amount }}
                                 </Button>
+                            </div>
+                        </div>
+
+                        <div v-else class="w-full max-w-md text-center py-8">
+                            <div
+                                class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-6 space-y-3"
+                            >
+                                <CheckCircle
+                                    class="size-16 text-emerald-400 mx-auto"
+                                />
+                                <h3 class="text-2xl font-bold text-emerald-300">
+                                    Balance Fully Paid!
+                                </h3>
+                                <p class="text-gray-300 text-sm">
+                                    Your overpayment has covered the entire
+                                    balance.
+                                </p>
                             </div>
                         </div>
 
