@@ -25,12 +25,28 @@ const props = defineProps({
     reference_number: String,
     fee_category: String,
     amount_paid: String,
+    payment_channel: String,
+    payment_provider: String,
+    payment_method: String,
+    gateway_payment_id: String,
     total_paid_to_date: Number,
     outstanding_balance: Number,
     current_overpayment: Number,
     overpayment_used: Number,
     total_overpayment: Number,
     transaction_date: String,
+});
+
+const formattedPaymentMethod = computed(() => {
+    if (!props.payment_method) return "N/A";
+
+    const method = String(props.payment_method).toLowerCase();
+    if (method === "qrph") return "QR Ph";
+    if (method === "paymaya") return "Maya";
+    if (method === "gcash") return "GCash";
+    if (method === "cash") return "Cash";
+
+    return props.payment_method.toUpperCase();
 });
 
 const leavingModal = ref(false);
@@ -170,6 +186,19 @@ const handleLeavingModal = () => {
                                     <p
                                         class="text-gray-500 text-xs sm:text-sm mb-1"
                                     >
+                                        Payment Channel
+                                    </p>
+                                    <p
+                                        class="text-white text-base sm:text-lg font-medium"
+                                    >
+                                        {{ payment_provider }} ·
+                                        {{ formattedPaymentMethod }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p
+                                        class="text-gray-500 text-xs sm:text-sm mb-1"
+                                    >
                                         Amount Paid Today
                                     </p>
                                     <p
@@ -182,6 +211,18 @@ const handleLeavingModal = () => {
                                         class="text-emerald-400 text-xs sm:text-sm mt-1"
                                     >
                                         + {{ formatCurrency(overpayment_used) }} from overpayment
+                                    </p>
+                                </div>
+                                <div v-if="gateway_payment_id">
+                                    <p
+                                        class="text-gray-500 text-xs sm:text-sm mb-1"
+                                    >
+                                        Gateway Payment ID
+                                    </p>
+                                    <p
+                                        class="text-white text-base sm:text-lg font-medium break-all"
+                                    >
+                                        {{ gateway_payment_id }}
                                     </p>
                                 </div>
                                 <div>
