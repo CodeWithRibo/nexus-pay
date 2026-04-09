@@ -15,6 +15,7 @@ use App\Http\Controllers\Kiosk\PaymentMethodController;
 use App\Http\Controllers\Kiosk\DynamicCashInsertionController;
 use App\Http\Controllers\Kiosk\DynamicProcessingPaymentController;
 use App\Http\Controllers\Kiosk\DynamicReceiptController;
+use App\Http\Controllers\Kiosk\PaymongoPaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +61,10 @@ Route::middleware(['auth', 'student'])->group(function() {
     Route::post('kiosk/tuition-fee/processing/{transaction_id}', [ProcessingPaymentController::class, 'process'])->name('kiosk.tuition-fee.processing.process');
     Route::get('kiosk/tuition-fee/processing/{transaction_id}', [ProcessingPaymentController::class, 'index'])->name('kiosk.tuition-fee.processing.index');
     Route::get('kiosk/tuition-fee/receipt/{transaction_id}', ReceiptController::class)->name('kiosk.tuition-fee.receipt');
+    Route::post('kiosk/paymongo/initiate', [PaymongoPaymentController::class, 'initiate'])->name('kiosk.paymongo.initiate');
+    Route::get('kiosk/paymongo/checkout/{transaction_id}', [PaymongoPaymentController::class, 'checkout'])->name('kiosk.paymongo.checkout');
+    Route::get('kiosk/paymongo/status/{transaction_id}', [PaymongoPaymentController::class, 'status'])->name('kiosk.paymongo.status');
+    Route::get('kiosk/paymongo/return/{transaction_id}', [PaymongoPaymentController::class, 'handleReturn'])->name('kiosk.paymongo.return');
 
     Route::get('kiosk/outstanding-balance', CheckBalanceController::class)->name('kiosk.outstanding-balance');
 
