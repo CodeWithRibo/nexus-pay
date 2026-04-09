@@ -48,6 +48,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         StudentBalance::factory()->for($user)->create([
+            'fee_name' => 'Other Fee',
+            'total_amount' => 1.00,
+            'paid_amount' => 0,
+            'status' => 'pending',
+        ]);
+
+        StudentBalance::factory()->for($user)->create([
             'fee_name' => 'Field Trip Fee',
             'total_amount' => 1600.00,
             'paid_amount' => 0,
