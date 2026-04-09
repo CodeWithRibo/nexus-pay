@@ -51,7 +51,8 @@ if (
     currentRouteName === "kiosk.tuition-fee.payment-method" ||
     currentRouteName === "kiosk.tuition-fee.cash-insertion" ||
     currentRouteName === "kiosk.payment-method" ||
-    currentRouteName === "kiosk.cash-insertion"
+    currentRouteName === "kiosk.cash-insertion" ||
+    currentRouteName === "kiosk.paymongo.checkout"
 ) {
     showCancelTransactionBtn.value = true;
 }
@@ -83,7 +84,8 @@ const handleGoBack = () => {
 const handleBillSummary = () => {
     if (
         currentRouteName === "kiosk.tuition-fee.cash-insertion" ||
-        currentRouteName === "kiosk.cash-insertion"
+        currentRouteName === "kiosk.cash-insertion" ||
+        currentRouteName === "kiosk.paymongo.checkout"
     ) {
         router.post(route("remove-transaction"));
         return;
