@@ -8,6 +8,7 @@ import { ref, computed } from "vue";
 
 const isDisabled = ref(false);
 const useOverpayment = ref(false);
+const paymongoMethod = ref("qrph");
 
 const props = defineProps({
     student: {
@@ -62,6 +63,14 @@ const formattedOverpayment = new Intl.NumberFormat("en-PH", {
 const initiatePayment = () => {
     router.post(route("kiosk.tuition-fee.initiate-payment"), {
         use_overpayment: useOverpayment.value,
+    });
+};
+
+const initiatePaymongoPayment = () => {
+    router.post(route("kiosk.paymongo.initiate"), {
+        context: "tuition",
+        use_overpayment: useOverpayment.value,
+        paymongo_method: paymongoMethod.value,
     });
 };
 </script>
@@ -138,69 +147,76 @@ const initiatePayment = () => {
                             ></div>
                         </div>
                     </div>
-                    <div
-                        v-if="Number(student.over_payment) > 0"
-                        class="bg-[#FFFFFF0D] rounded-lg p-5 w-92 text-white space-y-4 border border-white/10"
-                    >
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <span
-                                    class="text-gray-400 text-sm uppercase tracking-wider"
-                                    >Available Overpayment</span
+                    <div class="flex flex-col gap-3 mb-2">
+                        <div
+                            v-if="Number(student.over_payment) > 0"
+                            class="bg-[#FFFFFF0D] rounded-lg p-5 w-92 text-white space-y-4 border border-white/10"
+                        >
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span
+                                        class="text-gray-400 text-sm uppercase tracking-wider"
+                                        >Available Overpayment</span
+                                    >
+                                    <h3
+                                        class="text-2xl font-bold text-emerald-400"
+                                    >
+                                        {{ formattedOverpayment }}
+                                    </h3>
+                                </div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between pt-2 border-t border-white/10"
+                            >
+                                <Label
+                                    for="use-overpayment"
+                                    class="text-base text-white cursor-pointer"
                                 >
-                                <h3 class="text-2xl font-bold text-emerald-400">
-                                    {{ formattedOverpayment }}
-                                </h3>
+                                    Use Overpayment
+                                </Label>
+                                <Switch
+                                    id="use-overpayment"
+                                    v-model:checked="useOverpayment"
+                                    :disabled="isDisabled"
+                                />
                             </div>
                         </div>
                         <div
-                            class="flex items-center justify-between pt-2 border-t border-white/10"
-                        >
-                            <Label
-                                for="use-overpayment-bill"
-                                class="text-base text-white cursor-pointer"
-                            >
-                                Use Overpayment
-                            </Label>
-                            <Switch
-                                id="use-overpayment-bill"
-                                v-model:checked="useOverpayment"
-                                :disabled="isDisabled"
-                            />
-                        </div>
-                    </div>
-                    <div
-                        class="rounded-lg p-5 w-92 text-white space-y-5"
-                        :class="
-                            useOverpayment && appliedOverpayment > 0
-                                ? 'bg-linear-to-br from-emerald-600/20 to-emerald-800/20 border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20'
-                                : 'bg-[#FFFFFF14]'
-                        "
-                    >
-                        <span class="text-gray-400 text-lg">
-                            {{
+                            class="rounded-lg p-5 w-92 text-white space-y-5"
+                            :class="
                                 useOverpayment && appliedOverpayment > 0
-                                    ? "New Balance"
-                                    : "Current Balance"
-                            }}
-                        </span>
-                        <div>
-                            <h1
-                                class="text-5xl font-bold transition-all duration-300"
-                                :class="
+                                    ? 'bg-linear-to-br from-emerald-600/20 to-emerald-800/20 border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20'
+                                    : 'bg-[#FFFFFF14]'
+                            "
+                        >
+                            <span class="text-gray-400 text-lg">
+                                {{
                                     useOverpayment && appliedOverpayment > 0
-                                        ? 'text-emerald-300'
-                                        : ''
-                                "
-                            >
-                                {{ formattedCurrency }}
-                            </h1>
-                            <p
-                                v-if="useOverpayment && appliedOverpayment > 0"
-                                class="text-gray-400 text-sm mt-2 line-through"
-                            >
-                                Original: {{ formattedOriginalBalance }}
-                            </p>
+                                        ? "New Balance"
+                                        : "Current Balance"
+                                }}
+                            </span>
+                            <div>
+                                <h1
+                                    class="text-5xl font-bold transition-all duration-300"
+                                    :class="
+                                        useOverpayment && appliedOverpayment > 0
+                                            ? 'text-emerald-300'
+                                            : ''
+                                    "
+                                >
+                                    {{ formattedCurrency }}
+                                </h1>
+                                <p
+                                    v-if="
+                                        useOverpayment && appliedOverpayment > 0
+                                    "
+                                    class="text-gray-400 text-sm mt-2 line-through"
+                                >
+                                    Original:
+                                    {{ formattedOriginalBalance }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </nav>
@@ -249,10 +265,21 @@ const initiatePayment = () => {
                     </div>
                 </Button>
                 <Button
-                    class="group flex-1 h-42 p-10 rounded-2xl border-2 border-white/20 transition-all duration-300 flex items-center justify-start gap-6 text-left hover:border-white/60 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                    :disabled="isDisabled"
+                    @click="initiatePaymongoPayment"
+                    :class="{
+                        'cursor-not-allowed': isDisabled,
+                        'hover:border-white/60 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]':
+                            !isDisabled,
+                    }"
+                    class="group flex-1 h-42 p-10 rounded-2xl border-2 border-white/20 transition-all duration-300 flex items-center justify-start gap-6 text-left"
                 >
                     <div
-                        class="rounded-full p-4 border border-white/30 text-white transition-colors duration-300 group-hover:bg-white/15 group-hover:border-white/60"
+                        :class="{
+                            'group-hover:bg-white/15 group-hover:border-white/60':
+                                !isDisabled,
+                        }"
+                        class="rounded-full p-4 border border-white/30 text-white transition-colors duration-300"
                     >
                         <QrCode class="size-10" />
                     </div>
@@ -264,6 +291,19 @@ const initiatePayment = () => {
                         <span class="text-gray-400 text-lg tracking-wide"
                             >Scan qr code
                         </span>
+                        <div class="pt-2">
+                            <select
+                                v-model="paymongoMethod"
+                                @click.stop
+                                class="bg-[#0f0f0f] border border-white/20 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white/40"
+                            >
+                                <option value="qrph">
+                                    QR Ph (GCash / Maya)
+                                </option>
+                                <option value="gcash">GCash</option>
+                                <option value="paymaya">Maya</option>
+                            </select>
+                        </div>
                     </div>
                 </Button>
             </div>
