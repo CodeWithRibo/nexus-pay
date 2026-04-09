@@ -16,6 +16,7 @@ const isAuth = computed(() => Boolean(!user.value));
 
 const isDisabled = ref(false);
 const useOverpayment = ref(false);
+const paymongoMethod = ref("qrph");
 
 const props = defineProps({
     student: {
@@ -80,6 +81,16 @@ const initiatePayment = () => {
         balance_id: props.balance_id,
         pay_all: props.pay_all,
         use_overpayment: useOverpayment.value,
+    });
+};
+
+const initiatePaymongoPayment = () => {
+    router.post(route("kiosk.paymongo.initiate"), {
+        context: "dynamic",
+        balance_id: props.balance_id,
+        pay_all: props.pay_all,
+        use_overpayment: useOverpayment.value,
+        paymongo_method: paymongoMethod.value,
     });
 };
 </script>
@@ -292,10 +303,21 @@ const initiatePayment = () => {
                             </div>
                         </Button>
                         <Button
-                            class="group flex-1 h-42 p-10 rounded-2xl border-2 border-white/20 transition-all duration-300 flex items-center justify-start gap-6 text-left hover:border-white/60 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                            :disabled="isDisabled"
+                            @click="initiatePaymongoPayment"
+                            :class="{
+                                'cursor-not-allowed': isDisabled,
+                                'hover:border-white/60 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]':
+                                    !isDisabled,
+                            }"
+                            class="group flex-1 h-42 p-10 rounded-2xl border-2 border-white/20 transition-all duration-300 flex items-center justify-start gap-6 text-left"
                         >
                             <div
-                                class="rounded-full p-4 border border-white/30 text-white transition-colors duration-300 group-hover:bg-white/15 group-hover:border-white/60"
+                                :class="{
+                                    'group-hover:bg-white/15 group-hover:border-white/60':
+                                        !isDisabled,
+                                }"
+                                class="rounded-full p-4 border border-white/30 text-white transition-colors duration-300"
                             >
                                 <QrCode class="size-10" />
                             </div>
@@ -308,6 +330,19 @@ const initiatePayment = () => {
                                     class="text-gray-400 text-lg tracking-wide"
                                     >Scan qr code
                                 </span>
+                                <div class="pt-2">
+                                    <select
+                                        v-model="paymongoMethod"
+                                        @click.stop
+                                        class="bg-[#0f0f0f] border border-white/20 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white/40"
+                                    >
+                                        <option value="qrph">
+                                            QR Ph (GCash / Maya)
+                                        </option>
+                                        <option value="gcash">GCash</option>
+                                        <option value="paymaya">Maya</option>
+                                    </select>
+                                </div>
                             </div>
                         </Button>
                     </div>
