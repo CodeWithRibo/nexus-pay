@@ -18,6 +18,10 @@ class InitiatePaymentController extends Controller
             'transaction_id' => $transactionId,
             'user_id' => auth()->id(),
             'status' => 'pending',
+            'payment_channel' => 'kiosk_cash',
+            'payment_context' => 'tuition',
+            'pay_all' => false,
+            'use_overpayment' => $useOverpayment,
         ]);
 
         session([
@@ -42,6 +46,11 @@ class InitiatePaymentController extends Controller
             'transaction_id' => $transactionId,
             'user_id' => auth()->id(),
             'status' => 'pending',
+            'payment_channel' => 'kiosk_cash',
+            'payment_context' => 'dynamic',
+            'pay_all' => (bool) $payAll,
+            'use_overpayment' => $useOverpayment,
+            'student_balance_id' => $payAll ? null : ($balanceId ? (int) $balanceId : null),
         ]);
 
         session([
