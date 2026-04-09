@@ -17,7 +17,7 @@ class DestroyTransactionPaymentController extends Controller
             $payment = Payment::query()
                 ->where('transaction_id', $transactionId)
                 ->where('user_id', auth()->id())
-                ->where('status', 'pending')
+                ->whereIn('status', ['pending', 'awaiting_payment'])
                 ->first();
 
             $payment?->delete();
@@ -39,7 +39,7 @@ class DestroyTransactionPaymentController extends Controller
             $payment = Payment::query()
                 ->where('transaction_id', $transactionId)
                 ->where('user_id', auth()->id())
-                ->where('status', 'pending')
+                ->whereIn('status', ['pending', 'awaiting_payment'])
                 ->first();
 
             $payment?->delete();
