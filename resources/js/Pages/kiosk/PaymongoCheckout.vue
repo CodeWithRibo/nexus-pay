@@ -177,7 +177,7 @@ onUnmounted(() => {
                                 <p
                                     class="text-gray-500 text-xs uppercase tracking-wider font-semibold"
                                 >
-                                    QR Validity
+                                    Payment Validity
                                 </p>
                                 <p class="text-sm text-gray-300">
                                     {{ expiresAtText }}
