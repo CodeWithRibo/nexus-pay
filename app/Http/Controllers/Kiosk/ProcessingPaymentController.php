@@ -80,26 +80,27 @@ class ProcessingPaymentController extends Controller
             return redirect()->route('kiosk.landing-screen');
         }
 
-        $currentOverpayment = $request->over_payment;
-        $previousOverpayment = User::find(auth()->id())->over_payment ?? 0;
+        $currentOverpayment = 0.0;
+        $previousOverpayment = (float) (User::find(auth()->id())->over_payment ?? 0);
         $useOverpayment = session('use_overpayment', false);
 
-        DB::transaction(function () use ($request, $transaction_id, $payment, $currentOverpayment, $previousOverpayment, $useOverpayment) {
+        DB::transaction(function () use ($request, $transaction_id, $payment, &$currentOverpayment, $previousOverpayment, $useOverpayment) {
             $balance = StudentBalance::query()
                 ->where('user_id', auth()->id())
                 ->where('fee_name', 'Tuition Fee')
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $cashPaid = $request->amount_paid;
+            $cashPaid = (float) $request->amount_paid;
+            $balanceDue = max((float) $balance->total_amount - (float) $balance->paid_amount, 0);
             $overpaymentUsed = 0;
-            $totalAmountApplied = $cashPaid;
 
             if ($useOverpayment && $previousOverpayment > 0) {
-                $balanceDue = $balance->total_amount - $balance->paid_amount;
                 $overpaymentUsed = min($previousOverpayment, $balanceDue);
-                $totalAmountApplied = $cashPaid + $overpaymentUsed;
             }
+
+            $totalAmountApplied = min($cashPaid + $overpaymentUsed, $balanceDue);
+            $currentOverpayment = max($cashPaid + $overpaymentUsed - $balanceDue, 0);
 
             $payment->update([
                 'status' => 'completed',
@@ -108,14 +109,17 @@ class ProcessingPaymentController extends Controller
                 'student_balance_id' => $balance->id,
             ]);
 
-            $newPaidAmount = $balance->paid_amount + $totalAmountApplied;
+            $newPaidAmount = min(
+                (float) $balance->paid_amount + $totalAmountApplied,
+                (float) $balance->total_amount
+            );
 
             $balance->update([
                 'paid_amount' => $newPaidAmount,
                 'status' => $newPaidAmount >= $balance->total_amount ? 'completed' : 'pending',
             ]);
 
-            $newOverpaymentBalance = $previousOverpayment - $overpaymentUsed + $currentOverpayment;
+            $newOverpaymentBalance = max($previousOverpayment - $overpaymentUsed + $currentOverpayment, 0);
 
             User::query()
                 ->where('id', auth()->id())
