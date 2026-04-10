@@ -7,13 +7,11 @@ use App\Http\Requests\PaymongoRequest;
 use App\Models\Payment;
 use App\Models\StudentBalance;
 use App\Services\Kiosk\PaymentSettlementService;
+use App\Services\Kiosk\ReceiptService;
 use App\Services\Paymongo\PaymongoClient;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class PaymongoPaymentController extends Controller
@@ -336,7 +334,7 @@ class PaymongoPaymentController extends Controller
             )) / 100;
 
             $settlement = $paymentSettlementService->completePayment($payment, $paidAmount, [
-                'reference_no' => 'K-' . strtoupper(Str::random(8)),
+                'reference_no' => ReceiptService::generateRefNo(),
                 'gateway_payment_id' => $gatewayPaymentId,
                 'gateway_status' => 'succeeded',
                 'gateway_method' => $gatewayMethod,

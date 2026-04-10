@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Kiosk;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProcessingRequest;
 use App\Models\Payment;
 use App\Models\StudentBalance;
 use App\Models\User;
+use App\Services\Kiosk\ReceiptService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -13,12 +15,9 @@ use Inertia\Inertia;
 
 class DynamicProcessingPaymentController extends Controller
 {
-    public function start(Request $request, $transaction_id)
+    public function start(ProcessingRequest $request, $transaction_id)
     {
-        $request->validate([
-            'amount_paid' => 'required|numeric|min:0',
-            'over_payment' => 'required|numeric',
-        ]);
+        $request->validated();
 
         $payment = Payment::query()
             ->where('transaction_id', $transaction_id)
@@ -130,7 +129,7 @@ class DynamicProcessingPaymentController extends Controller
                 $payment->update([
                     'status' => 'completed',
                     'amount_paid' => $cashPaid,
-                    'reference_no' => 'K-' . strtoupper(Str::random(8)),
+                    'reference_no' => ReceiptService::generateRefNo(),
                     'student_balance_id' => $firstBalance?->id,
                 ]);
             } else {
@@ -151,7 +150,7 @@ class DynamicProcessingPaymentController extends Controller
                 $payment->update([
                     'status' => 'completed',
                     'amount_paid' => $cashPaid,
-                    'reference_no' => 'K-' . strtoupper(Str::random(8)),
+                    'reference_no' => ReceiptService::generateRefNo(),
                     'student_balance_id' => $balance->id,
                 ]);
 
@@ -168,7 +167,7 @@ class DynamicProcessingPaymentController extends Controller
             User::query()
                 ->where('id', auth()->id())
                 ->update(['over_payment' => $newOverpaymentBalance]);
-                
+
             session()->put("overpayment_used_{$transaction_id}", $overpaymentUsed);
         });
 
