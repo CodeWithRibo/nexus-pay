@@ -21,6 +21,19 @@ watch(insertedAmount, (newVal) => {
     localStorage.setItem("insertedAmount", newVal);
 });
 
+watch(insertedAmount, (newVal, oldVal) => {
+    const amountDue = Number(props.studAmountDue) || 0;
+
+    if (oldVal === amountDue && newVal > amountDue) {
+        toast.warning("Overpayment Detected", {
+            description:
+                "Amount due was already met. Extra cash will be treated as overpayment.",
+            duration: 2500,
+            position: "top-center",
+        });
+    }
+});
+
 const props = defineProps({
     studAmountDue: {
         type: [String, Number],
