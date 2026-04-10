@@ -44,7 +44,7 @@ class ReceiptController extends Controller
         $totalPaidToDate = optional($studentBalance)->paid_amount ?? 0;
         $totalAmount = optional($studentBalance)->total_amount ?? 0;
         $currentBalance = max($totalAmount - $totalPaidToDate, 0);
-        
+
         $currentOverpayment = session("current_overpayment_{$transaction_id}", 0);
         $overpaymentUsed = session("overpayment_used_{$transaction_id}", 0);
         $totalOverpayment = $student->over_payment ?? 0;
@@ -58,7 +58,7 @@ class ReceiptController extends Controller
             'amount_paid' => $payment->amount_paid,
             'payment_channel' => $payment->payment_channel,
             'payment_provider' => $payment->payment_channel === 'paymongo' ? 'PayMongo' : 'Kiosk',
-            'payment_method' => $payment->gateway_method ?? 'cash',
+            'payment_method' => $payment->gateway_method ?? 'Cash',
             'gateway_payment_id' => $payment->gateway_payment_id,
             'total_paid_to_date' => $totalPaidToDate,
             'outstanding_balance' => $currentBalance,
