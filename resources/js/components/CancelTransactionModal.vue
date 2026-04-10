@@ -44,76 +44,93 @@ const handleBillSummary = () => {
 
 <template>
     <AlertDialog :open="open" @update:open="(val) => emit('update:open', val)">
-        <AlertDialogContent @interactOutside="handleClose">
-            <button
-                @click="handleClose"
-                class="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10"
+            <AlertDialogContent
+                v-if="open"
+                forceMount
+                class="bg-[#1a1a1a] border-white/10 rounded-3xl p-8 max-w-lg"
+                @interactOutside="handleClose"
             >
-                <X class="size-5" />
-                <span class="sr-only">Close</span>
-            </button>
+                <button
+                    @click="handleClose"
+                    class="absolute top-6 right-6 rounded-full p-2 opacity-50 transition-all hover:opacity-100 hover:bg-white/10 text-white focus:outline-none z-10"
+                >
+                    <X class="size-6" />
+                    <span class="sr-only">Close</span>
+                </button>
 
-            <AlertDialogHeader>
-                <AlertDialogTitle class="text-2xl flex items-center gap-3">
-                    <ShieldCheck
+                <AlertDialogHeader class="space-y-4">
+                    <div
                         v-if="isLocked"
-                        class="size-7 text-amber-500"
-                    />
-                    <CircleAlert v-else class="size-7" />
+                        class="mx-auto bg-amber-500/10 p-4 rounded-full w-fit mb-2"
+                    >
+                        <ShieldCheck class="size-10 text-amber-500" />
+                    </div>
+                    <div
+                        v-else
+                        class="mx-auto bg-red-500/10 p-4 rounded-full w-fit mb-2"
+                    >
+                        <CircleAlert class="size-10 text-red-500" />
+                    </div>
 
-                    <p>
+                    <AlertDialogTitle
+                        class="text-3xl font-bold text-white text-center"
+                    >
                         {{
                             isLocked
                                 ? "Transaction Locked"
                                 : "Cancel Transaction?"
                         }}
-                    </p>
-                </AlertDialogTitle>
-                <AlertDialogDescription class="text-lg">
+                    </AlertDialogTitle>
+                    <AlertDialogDescription
+                        class="text-xl text-gray-400 text-center leading-relaxed"
+                    >
+                        <template v-if="isLocked">
+                            Cash has been detected. To secure your
+                            <span class="font-bold text-white"
+                                >₱{{ insertedAmount }}</span
+                            >, please complete the insertion process. You
+                            cannot exit until a receipt is generated.
+                        </template>
+
+                        <template v-else>
+                            Do you want to go back to your bill summary or log
+                            out to keep your account safe?
+                        </template>
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter
+                    class="flex flex-col gap-3 mt-6 justify-center"
+                >
                     <template v-if="isLocked">
-                        Cash has been detected. To secure your
-                        <span class="font-bold">₱{{ insertedAmount }}</span
-                        >, please complete the insertion process. You cannot
-                        exit until a receipt is generated.
+                        <Button
+                            @click="handleClose"
+                            class="w-full py-8 text-xl font-bold tracking-wide transition-all duration-200 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl shadow-lg shadow-amber-900/20 active:scale-[0.98] cursor-pointer"
+                        >
+                            <div class="flex items-center justify-center gap-3">
+                                <PlayCircle class="size-7" />
+                                <span> Continue Inserting Cash </span>
+                            </div>
+                        </Button>
                     </template>
 
                     <template v-else>
-                        Do you want to go back to your bill summary or log out
-                        to keep your account safe?
+                        <AlertDialogCancel
+                            @click="handleBillSummary"
+                            class="py-7 text-xl border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white rounded-2xl flex-1 cursor-pointer transition-all active:scale-[0.98]"
+                        >
+                            Back to Bill Summary
+                        </AlertDialogCancel>
+
+                        <Button
+                            variant="destructive"
+                            @click="handleLogout"
+                            class="py-7 text-xl font-bold rounded-2xl flex-1 hover:opacity-90 cursor-pointer shadow-lg shadow-red-900/20 transition-all active:scale-[0.98]"
+                        >
+                            Logout Now
+                        </Button>
                     </template>
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <template v-if="isLocked">
-                    <AlertDialogAction
-                        class="w-full py-6 text-lg font-bold tracking-wide transition-all duration-200 bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-lg shadow-emerald-900/20 active:scale-[0.98] cursor-pointer"
-                    >
-                        <div class="flex items-center justify-center gap-2">
-                            <PlayCircle class="size-6" />
-                            <span @click="handleClose" class="text-xl">
-                                Continue Inserting Cash
-                            </span>
-                        </div>
-                    </AlertDialogAction>
-                </template>
-
-                <template v-else>
-                    <AlertDialogCancel
-                        @click="handleBillSummary"
-                        class="py-5 text-lg cursor-pointer"
-                    >
-                        Back to Bill Summary
-                    </AlertDialogCancel>
-
-                    <Button
-                        variant="destructive"
-                        @click="handleLogout"
-                        class="py-5 text-lg hover:opacity-75 cursor-pointer"
-                    >
-                        Logout Now
-                    </Button>
-                </template>
-            </AlertDialogFooter>
-        </AlertDialogContent>
+                </AlertDialogFooter>
+            </AlertDialogContent>
     </AlertDialog>
 </template>

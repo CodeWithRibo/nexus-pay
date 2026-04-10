@@ -52,50 +52,66 @@ const toHome = () => {
 
 <template>
     <AlertDialog :open="open" @update:open="(val) => emit('update:open', val)">
-        <AlertDialogContent @interactOutside="handleClose">
-            <button
-                @click="handleClose"
-                class="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10"
+            <AlertDialogContent
+                v-if="open"
+                forceMount
+                class="bg-[#1a1a1a] border-white/10 rounded-3xl p-8 max-w-lg"
+                @interactOutside="handleClose"
             >
-                <X class="size-5" />
-                <span class="sr-only">Close</span>
-            </button>
-
-            <AlertDialogHeader>
-                <AlertDialogTitle class="text-2xl flex items-center gap-3">
-                    <CircleAlert class="size-7" />
-                    <p>Leaving so soon?</p>
-                </AlertDialogTitle>
-                <AlertDialogDescription class="text-lg">
-                    Your session is still active. To protect your data, please
-                    logout completely if you are finished.
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <template v-if="handleReceiptRoute">
-                    <AlertDialogCancel
-                        @click="toHome"
-                        class="py-5 text-lg cursor-pointer"
-                    >
-                        Back to Home
-                    </AlertDialogCancel>
-                </template>
-                <template v-else>
-                    <AlertDialogCancel
-                        @click="handleGoBack"
-                        class="py-5 text-lg cursor-pointer"
-                    >
-                        Go Back
-                    </AlertDialogCancel>
-                </template>
-                <Button
-                    variant="destructive"
-                    @click="handleLogout"
-                    class="py-5 text-lg hover:opacity-75 cursor-pointer"
+                <button
+                    @click="handleClose"
+                    class="absolute top-6 right-6 rounded-full p-2 opacity-50 transition-all hover:opacity-100 hover:bg-white/10 text-white focus:outline-none z-10"
                 >
-                    Logout Now
-                </Button>
-            </AlertDialogFooter>
-        </AlertDialogContent>
+                    <X class="size-6" />
+                    <span class="sr-only">Close</span>
+                </button>
+
+                <AlertDialogHeader class="space-y-4">
+                    <div
+                        class="mx-auto bg-amber-500/10 p-4 rounded-full w-fit mb-2"
+                    >
+                        <CircleAlert class="size-10 text-amber-500" />
+                    </div>
+                    <AlertDialogTitle
+                        class="text-3xl font-bold text-white text-center"
+                    >
+                        Leaving so soon?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription
+                        class="text-xl text-gray-400 text-center leading-relaxed"
+                    >
+                        Your session is still active. To protect your data,
+                        please logout completely if you are finished.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter
+                    class="flex flex-col gap-3 mt-6 justify-center"
+                >
+                    <template v-if="handleReceiptRoute">
+                        <AlertDialogCancel
+                            @click="toHome"
+                            class="py-7 text-xl border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white rounded-2xl flex-1 cursor-pointer transition-all active:scale-[0.98]"
+                        >
+                            Back to Home
+                        </AlertDialogCancel>
+                    </template>
+                    <template v-else>
+                        <AlertDialogCancel
+                            @click="handleGoBack"
+                            class="py-7 text-xl border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white rounded-2xl flex-1 cursor-pointer transition-all active:scale-[0.98]"
+                        >
+                            Go Back
+                        </AlertDialogCancel>
+                    </template>
+                    <Button
+                        variant="destructive"
+                        @click="handleLogout"
+                        class="py-7 text-xl font-bold rounded-2xl flex-1 hover:opacity-90 cursor-pointer shadow-lg shadow-red-900/20 transition-all active:scale-[0.98]"
+                    >
+                        Logout Now
+                    </Button>
+                </AlertDialogFooter>
+            </AlertDialogContent>
     </AlertDialog>
 </template>

@@ -32,40 +32,56 @@ const handleClose = () => {
 
 <template>
     <AlertDialog :open="open" @update:open="(val) => emit('update:open', val)">
-        <AlertDialogContent @interactOutside="handleClose">
-            <button
-                @click="handleClose"
-                class="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10"
+            <AlertDialogContent
+                v-if="open"
+                forceMount
+                class="bg-[#1a1a1a] border-white/10 rounded-3xl p-8 max-w-lg"
+                @interactOutside="handleClose"
             >
-                <X class="size-5" />
-                <span class="sr-only">Close</span>
-            </button>
-
-            <AlertDialogHeader>
-                <AlertDialogTitle class="text-2xl flex items-center gap-3">
-                    <ShieldCheck class="size-7" />
-                    <p>Secure Logout</p>
-                </AlertDialogTitle>
-                <AlertDialogDescription class="text-lg">
-                    To prevent unauthorized access to your student account,
-                    please confirm you are finished using this kiosk
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel
+                <button
                     @click="handleClose"
-                    class="py-5 text-lg cursor-pointer"
+                    class="absolute top-6 right-6 rounded-full p-2 opacity-50 transition-all hover:opacity-100 hover:bg-white/10 text-white focus:outline-none z-10"
                 >
-                    Cancel
-                </AlertDialogCancel>
-                <Button
-                    variant="destructive"
-                    @click="handleLogout"
-                    class="py-5 text-lg hover:opacity-75 cursor-pointer"
+                    <X class="size-6" />
+                    <span class="sr-only">Close</span>
+                </button>
+
+                <AlertDialogHeader class="space-y-4">
+                    <div
+                        class="mx-auto bg-amber-500/10 p-4 rounded-full w-fit mb-2"
+                    >
+                        <ShieldCheck class="size-10 text-amber-500" />
+                    </div>
+                    <AlertDialogTitle
+                        class="text-3xl font-bold text-white text-center"
+                    >
+                        Secure Logout
+                    </AlertDialogTitle>
+                    <AlertDialogDescription
+                        class="text-xl text-gray-400 text-center leading-relaxed"
+                    >
+                        To prevent unauthorized access to your student account,
+                        please confirm you are finished using this kiosk
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter
+                    class="flex flex-col gap-3 mt-6 justify-center"
                 >
-                    Logout Now
-                </Button>
-            </AlertDialogFooter>
-        </AlertDialogContent>
+                    <AlertDialogCancel
+                        @click="handleClose"
+                        class="py-7 text-xl border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white rounded-2xl flex-1 cursor-pointer transition-all active:scale-[0.98]"
+                    >
+                        Cancel
+                    </AlertDialogCancel>
+                    <Button
+                        variant="destructive"
+                        @click="handleLogout"
+                        class="py-7 text-xl font-bold rounded-2xl flex-1 hover:opacity-90 cursor-pointer shadow-lg shadow-red-900/20 transition-all active:scale-[0.98]"
+                    >
+                        Logout Now
+                    </Button>
+                </AlertDialogFooter>
+            </AlertDialogContent>
     </AlertDialog>
 </template>
