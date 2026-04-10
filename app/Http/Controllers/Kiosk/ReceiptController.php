@@ -59,13 +59,13 @@ class ReceiptController extends Controller
             'payment_channel' => $payment->payment_channel,
             'payment_provider' => $payment->payment_channel === 'paymongo' ? 'PayMongo' : 'Kiosk',
             'payment_method' => $payment->gateway_method ?? 'Cash',
-            'gateway_payment_id' => $payment->gateway_payment_id,
             'total_paid_to_date' => $totalPaidToDate,
             'outstanding_balance' => $currentBalance,
             'current_overpayment' => $currentOverpayment,
             'overpayment_used' => $overpaymentUsed,
             'total_overpayment' => $totalOverpayment,
             'transaction_date' => $payment->created_at->format('F d, Y \a\t h:i A'),
+            'status' => $payment->status,
         ]);
     }
 }

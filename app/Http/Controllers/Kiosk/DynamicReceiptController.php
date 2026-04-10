@@ -44,7 +44,7 @@ class DynamicReceiptController extends Controller
         $feeCategory = $studentBalance?->fee_name ?? 'Payment';
         $totalPaidToDate = $studentBalance?->paid_amount ?? 0;
         $currentBalance = max($studentBalance?->total_amount  - $totalPaidToDate, 0);
-        
+
         $currentOverpayment = session("current_overpayment_{$transaction_id}", 0);
         $overpaymentUsed = session("overpayment_used_{$transaction_id}", 0);
         $totalOverpayment = $student->over_payment ?? 0;
@@ -58,14 +58,14 @@ class DynamicReceiptController extends Controller
             'amount_paid' => $payment->amount_paid,
             'payment_channel' => $payment->payment_channel,
             'payment_provider' => $payment->payment_channel === 'paymongo' ? 'PayMongo' : 'Kiosk',
-            'payment_method' => $payment->gateway_method ?? 'cash',
-            'gateway_payment_id' => $payment->gateway_payment_id,
+            'payment_method' => $payment->gateway_method ?? 'Cash',
             'total_paid_to_date' => $totalPaidToDate,
             'outstanding_balance' => $currentBalance,
             'current_overpayment' => $currentOverpayment,
             'overpayment_used' => $overpaymentUsed,
             'total_overpayment' => $totalOverpayment,
             'transaction_date' => $payment->created_at->format('F d, Y \a\t h:i A'),
+            'status' => $payment->status,
         ]);
     }
 }
