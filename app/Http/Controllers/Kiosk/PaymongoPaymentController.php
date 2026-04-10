@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Kiosk;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PaymongoRequest;
 use App\Models\Payment;
 use App\Models\StudentBalance;
 use App\Services\Kiosk\PaymentSettlementService;
@@ -18,17 +19,11 @@ use Inertia\Inertia;
 class PaymongoPaymentController extends Controller
 {
     public function initiate(
-        Request $request,
+        PaymongoRequest $request,
         PaymongoClient $paymongoClient,
         PaymentSettlementService $paymentSettlementService
     ) {
-        $validated = Validator::make($request->all(), [
-            'context' => ['required', Rule::in(['tuition', 'dynamic'])],
-            'balance_id' => ['nullable', 'integer'],
-            'pay_all' => ['nullable', 'boolean'],
-            'use_overpayment' => ['nullable', 'boolean'],
-            'paymongo_method' => ['nullable', Rule::in(['qrph', 'gcash', 'paymaya'])],
-        ])->validate();
+        $validated = $request->validated();
 
         $context = $validated['context'];
         $payAll = $context === 'dynamic' && (bool) ($validated['pay_all'] ?? false);
@@ -341,7 +336,7 @@ class PaymongoPaymentController extends Controller
             )) / 100;
 
             $settlement = $paymentSettlementService->completePayment($payment, $paidAmount, [
-                'reference_no' => $gatewayPaymentId ?: 'PM-' . strtoupper(Str::random(10)),
+                'reference_no' => 'K-' . strtoupper(Str::random(8)),
                 'gateway_payment_id' => $gatewayPaymentId,
                 'gateway_status' => 'succeeded',
                 'gateway_method' => $gatewayMethod,
