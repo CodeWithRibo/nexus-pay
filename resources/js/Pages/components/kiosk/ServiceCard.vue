@@ -13,7 +13,6 @@ import { Form, router } from "@inertiajs/vue3";
 import { Checkbox } from "@/components/ui/checkbox/index.js";
 import { Label } from "@/components/ui/label/index.js";
 
-
 const cardData = [
     {
         name: "Tuition Fees",
@@ -37,12 +36,11 @@ const handleService = (item) => {
     serviceVal.value = item;
 };
 
-
 const acceptServiceVal = () => {
     if (!acceptService.value) {
-        messageService.value = 'Please check the "I Agree & Continue" box to proceed.'
+        messageService.value = "Please check the box to agree and continue.";
         setTimeout(() => {
-            messageService.value = ''
+            messageService.value = "";
         }, 2500);
 
         return;
@@ -115,12 +113,14 @@ const DpaCondition = [
                                 <div class="flex items-center gap-5">
                                     <Checkbox v-model="acceptService" />
                                     <Label class="w-[90%] text-xl">
-                                        By proceeding, you consent to the collection and
-                                        processing of your personal information as
-                                        described above.
+                                        By proceeding, you consent to the
+                                        collection and processing of your
+                                        personal information as described above.
                                     </Label>
                                 </div>
-                                <p class="pl-9 mt-3 mb-10 text-red-500"> {{ messageService }}</p>
+                                <p class="pl-9 mt-3 mb-10 text-red-500">
+                                    {{ messageService }}
+                                </p>
                                 <div class="space-x-5">
                                     <Button
                                         type="button"
