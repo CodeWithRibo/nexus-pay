@@ -110,7 +110,7 @@ const checkStatus = async () => {
 
 const openCheckout = () => {
     if (!props.checkout_url) return;
-    window.open(props.checkout_url, "_blank", "noopener,noreferrer");
+    window.open(props.checkout_url, "_self", "noopener,noreferrer");
 };
 
 onMounted(() => {
