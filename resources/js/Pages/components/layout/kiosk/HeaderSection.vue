@@ -6,6 +6,7 @@ import { router, usePage } from "@inertiajs/vue3";
 import LeavingModal from "@/components/LeavingModal.vue";
 import LogoutModal from "@/components/LogoutModal.vue";
 import CancelTransactionModal from "@/components/CancelTransactionModal.vue";
+import { toast } from "vue-sonner";
 
 const props = defineProps({
     isLocked: {
@@ -87,7 +88,15 @@ const handleBillSummary = () => {
         currentRouteName === "kiosk.cash-insertion" ||
         currentRouteName === "kiosk.paymongo.checkout"
     ) {
-        router.post(route("remove-transaction"));
+        toast.success("Cancelled Successfully", {
+            description: "Transaction cancelled successfully.",
+            duration: 2000,
+            position: "top-center",
+        });
+
+        setTimeout(() => {
+            router.post(route("remove-transaction"));
+        }, 800);
         return;
     }
     router.visit(route("kiosk.outstanding-balance"));
