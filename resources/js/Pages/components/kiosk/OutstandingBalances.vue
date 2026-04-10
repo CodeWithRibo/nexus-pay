@@ -6,7 +6,7 @@ import { ArrowRight, CheckCircle, CircleCheckBig } from "lucide-vue-next";
 
 const props = defineProps({
     studentBalances: {
-        type: Object,
+        type: Array,
         required: true,
     },
     totalAssessment: {
@@ -27,8 +27,20 @@ const props = defineProps({
     },
 });
 
-const netBalance = computed(() => Math.max(0, props.amountDue));
-const isAllPaid = computed(() => props.amountDue <= 0);
+const getItemBalance = (item) => {
+    const totalAmount = Number(item.total_amount || 0);
+    const paidAmount = Number(item.paid_amount || 0);
+
+    return Math.max(0, totalAmount - paidAmount);
+};
+
+const netBalance = computed(() =>
+    props.studentBalances.reduce((total, item) => total + getItemBalance(item), 0),
+);
+const amountSettled = computed(() =>
+    Math.min(Number(props.totalAssessment || 0), Math.max(Number(props.totalAssessment || 0) - netBalance.value, 0)),
+);
+const isAllPaid = computed(() => netBalance.value <= 0);
 
 const studDataBalances = computed(() => [
     {
@@ -38,7 +50,7 @@ const studDataBalances = computed(() => [
     },
     {
         title: "Amount Settled",
-        amount: props.amountSettled,
+        amount: amountSettled.value,
         description: "Processed Payments",
     },
     {
@@ -59,10 +71,6 @@ const formatCurrency = (value) =>
         currency: "PHP",
         minimumFractionDigits: 2,
     }).format(Math.max(0, value));
-
-const getItemBalance = (item) => {
-    return Math.max(0, item.total_amount - item.paid_amount);
-};
 
 const proceedToPayAll = () => {
     router.visit(route("kiosk.payment-method", { pay_all: true }));
