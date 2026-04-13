@@ -1,25 +1,25 @@
 <?php
-
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Kiosk\DestroyTransactionPaymentController;
-use App\Http\Controllers\Kiosk\LandingScreenController;
 use App\Http\Controllers\Kiosk\CashInsertionController;
-use App\Http\Controllers\Kiosk\ProcessingPaymentController;
-use App\Http\Controllers\Kiosk\ReceiptController;
 use App\Http\Controllers\Kiosk\CheckBalanceController;
-use App\Http\Controllers\Kiosk\ServiceSelectionController;
-use App\Http\Controllers\Kiosk\TuitionFeeController;
-use App\Http\Controllers\Kiosk\InitiatePaymentController;
-use App\Http\Controllers\Kiosk\PaymentMethodController;
+use App\Http\Controllers\Kiosk\DestroyTransactionPaymentController;
 use App\Http\Controllers\Kiosk\DynamicCashInsertionController;
 use App\Http\Controllers\Kiosk\DynamicProcessingPaymentController;
 use App\Http\Controllers\Kiosk\DynamicReceiptController;
+use App\Http\Controllers\Kiosk\InitiatePaymentController;
+use App\Http\Controllers\Kiosk\LandingScreenController;
+use App\Http\Controllers\Kiosk\PaymentMethodController;
 use App\Http\Controllers\Kiosk\PaymongoPaymentController;
+use App\Http\Controllers\Kiosk\ProcessingPaymentController;
+use App\Http\Controllers\Kiosk\ReceiptController;
+use App\Http\Controllers\Kiosk\ServiceSelectionController;
+use App\Http\Controllers\Kiosk\TuitionFeeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 
 
 Route::middleware('auth')->group(function() {
