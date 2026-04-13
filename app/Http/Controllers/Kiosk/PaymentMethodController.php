@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\StudentBalance;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class PaymentMethodController extends Controller
@@ -14,15 +15,15 @@ class PaymentMethodController extends Controller
     {
         $balanceId = $request->query('balance_id');
         $payAll = filter_var($request->query('pay_all', false), FILTER_VALIDATE_BOOLEAN);
+        $userId = Auth::id();
 
         $student = User::query()
-            ->where('id', auth()->id())
             ->with(['information:id,first_name,last_name,user_id'])
-            ->findOrFail(auth()->id());
+            ->findOrFail($userId);
 
         if ($payAll) {
             $balances = StudentBalance::query()
-                ->where('user_id', auth()->id())
+                ->where('user_id', $userId)
                 ->whereRaw('total_amount > paid_amount')
                 ->get();
 
@@ -43,7 +44,7 @@ class PaymentMethodController extends Controller
 
         $balance = StudentBalance::query()
             ->where('id', $balanceId)
-            ->where('user_id', auth()->id())
+            ->where('user_id', $userId)
             ->firstOrFail();
 
         $currentBalance = $balance->total_amount - $balance->paid_amount;
