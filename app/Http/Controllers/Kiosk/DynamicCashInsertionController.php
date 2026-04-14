@@ -23,7 +23,7 @@ class DynamicCashInsertionController extends Controller
         $balanceId = session('payment_balance_id');
         $payAll = (bool) session('payment_pay_all', false);
         $useOverpayment = session('use_overpayment', false);
-        
+
         $user = auth()->user();
         $userOverpayment = $user->over_payment ?? 0;
 
@@ -55,7 +55,7 @@ class DynamicCashInsertionController extends Controller
             $amountDue = max($amountDue - $userOverpayment, 0);
         }
 
-        return Inertia::render('kiosk/CashInsertion', [
+        return Inertia::render('kiosk/Payments/CashInsertion', [
             'studAmountDue' => $amountDue,
             'transaction_id' => $transaction_id,
             'description' => $description,

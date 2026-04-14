@@ -197,7 +197,7 @@ class PaymongoPaymentController extends Controller
             ]);
         }
 
-        return Inertia::render('kiosk/PaymongoCheckout', [
+        return Inertia::render('kiosk/Payments/PaymongoCheckout', [
             'transaction_id' => $transaction_id,
             'amount_due' => (float) $payment->amount_paid,
             'payment_method' => $payment->gateway_method,

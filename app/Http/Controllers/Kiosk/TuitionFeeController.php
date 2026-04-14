@@ -26,7 +26,7 @@ class TuitionFeeController extends Controller
         $paidAmount =  $tuitionBalance->paid_amount ?? 0;
         $currentBalance = max($totalAmount - $paidAmount, 0);
 
-        return Inertia::render('kiosk/TuitionFee', [
+        return Inertia::render('kiosk/Services/TuitionFee', [
             'student' => [
                 'student_name' => trim(($student->information->first_name ?? '').' '.($student->information->last_name ?? '')) ?: 'Unknown',
                 'student_id' => $student->student_id,

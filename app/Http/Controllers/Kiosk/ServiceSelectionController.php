@@ -13,7 +13,7 @@ class ServiceSelectionController extends Controller
         $urlFlag = filter_var($isLoggedIn, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
         $actualAuth = auth()->check();
 
-        return Inertia::render('kiosk/ServiceSelection', [
+        return Inertia::render('kiosk/Services/Selection', [
             'isLoggedInFromUrl' => $urlFlag,
             'isLoggedIn' => $actualAuth,
         ]);

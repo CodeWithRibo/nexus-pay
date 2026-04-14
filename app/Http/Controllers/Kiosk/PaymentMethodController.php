@@ -29,7 +29,7 @@ class PaymentMethodController extends Controller
 
             $totalDue = $balances->sum(fn($b) => $b->total_amount - $b->paid_amount);
 
-            return Inertia::render('kiosk/PaymentMethod', [
+            return Inertia::render('kiosk/Payments/Method', [
                 'student' => [
                     'student_name' => $student->information->first_name . ' ' . $student->information->last_name ?? 'Unknown',
                     'student_id' => $student->student_id,
@@ -49,7 +49,7 @@ class PaymentMethodController extends Controller
 
         $currentBalance = $balance->total_amount - $balance->paid_amount;
 
-        return Inertia::render('kiosk/PaymentMethod', [
+        return Inertia::render('kiosk/Payments/Method', [
             'student' => [
                 'student_name' => $student->information->first_name . ' ' . $student->information->last_name ?? 'Unknown',
                 'student_id' => $student->student_id,

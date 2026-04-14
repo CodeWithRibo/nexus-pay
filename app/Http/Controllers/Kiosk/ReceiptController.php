@@ -49,7 +49,7 @@ class ReceiptController extends Controller
         $overpaymentUsed = session("overpayment_used_{$transaction_id}", 0);
         $totalOverpayment = $student->over_payment ?? 0;
 
-        return Inertia::render('kiosk/Receipt', [
+        return Inertia::render('kiosk/Results/Receipt', [
             'student_name' => $student->information->first_name.' '.$student->information->last_name ?? 'Unknown',
             'student_email' => $student->email,
             'student_id' => $student->student_id,

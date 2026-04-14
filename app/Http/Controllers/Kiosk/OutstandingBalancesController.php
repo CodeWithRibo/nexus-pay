@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\StudentBalance;
 use Inertia\Inertia;
 
-class CheckBalanceController extends Controller
+class OutstandingBalancesController extends Controller
 {
     public function __invoke()
     {
@@ -26,7 +26,7 @@ class CheckBalanceController extends Controller
         );
         $amountDue = max($totalAssessment - $amountSettled, 0);
 
-        return Inertia::render('kiosk/CheckBalance', [
+        return Inertia::render('kiosk/Account/Balances', [
             'studentBalances' => $studentBalances,
             'totalAssessment' => $totalAssessment,
             'amountSettled' => $amountSettled,

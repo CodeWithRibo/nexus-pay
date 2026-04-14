@@ -34,7 +34,7 @@ class CashInsertionController extends Controller
             $studAmountDue = max($studAmountDue - $userOverpayment, 0);
         }
 
-        return Inertia::render('kiosk/CashInsertion', [
+        return Inertia::render('kiosk/Payments/CashInsertion', [
             'studAmountDue' => $studAmountDue,
             'transaction_id' => $transaction_id,
         ]);

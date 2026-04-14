@@ -56,7 +56,7 @@ class DynamicProcessingPaymentController extends Controller
             return redirect()->route('kiosk.landing-screen');
         }
 
-        return Inertia::render('kiosk/ProcessingPayment', [
+        return Inertia::render('kiosk/Payments/Processing', [
             'transaction_id' => $transaction_id,
             'amount_paid' => (float) $paymentData['amount_paid'],
             'over_payment' => (float) $paymentData['over_payment'],
