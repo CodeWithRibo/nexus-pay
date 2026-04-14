@@ -2,7 +2,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Kiosk\CashInsertionController;
-use App\Http\Controllers\Kiosk\CheckBalanceController;
+use App\Http\Controllers\Kiosk\OutstandingBalancesController;
 use App\Http\Controllers\Kiosk\DestroyTransactionPaymentController;
 use App\Http\Controllers\Kiosk\DynamicCashInsertionController;
 use App\Http\Controllers\Kiosk\DynamicProcessingPaymentController;
@@ -66,7 +66,7 @@ Route::middleware(['auth', 'student'])->group(function() {
     Route::get('kiosk/paymongo/status/{transaction_id}', [PaymongoPaymentController::class, 'status'])->name('kiosk.paymongo.status');
     Route::get('kiosk/paymongo/return/{transaction_id}', [PaymongoPaymentController::class, 'handleReturn'])->name('kiosk.paymongo.return');
 
-    Route::get('kiosk/outstanding-balance', CheckBalanceController::class)->name('kiosk.outstanding-balance');
+    Route::get('kiosk/outstanding-balance', OutstandingBalancesController::class)->name('kiosk.outstanding-balance');
 
 //------------Dynamic Payment Method---------------//
     Route::get('kiosk/payment-method', PaymentMethodController::class)->name('kiosk.payment-method');
