@@ -18,6 +18,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        User::factory()
+            ->has(
+                UserInformation::factory()->state([
+                    'first_name' => 'Admin',
+                    'last_name' => 'Luna',
+                ]),
+                'information'
+            )
+            ->create([
+            'email' => 'admin@gmail.com',
+            'password' => 'admin123',
+            'role' => 'admin',
+        ]);
+
         $user = User::factory()
             ->has(
                 UserInformation::factory()->state([
@@ -27,10 +41,11 @@ class DatabaseSeeder extends Seeder
                 'information'
             )
             ->create([
-                'email' => 'student@example.com',
+                'email' => 'student@gmail.com',
                 'student_id' => '02000411496',
                 'password' => 'stotomas20060628',
                 'over_payment' => 0,
+                'role' => 'student',
             ]);
 
         StudentBalance::factory()->for($user)->create([
@@ -75,14 +90,5 @@ class DatabaseSeeder extends Seeder
             'status' => 'pending',
         ]);
 
-//        Payment::factory()
-//            ->for($user)
-//            ->for($balance)
-//            ->create([
-//                'transaction_id' => fake()->uuid(),
-//                'status' =>   'pending',
-//                'amount_paid' => 1500.00,
-//                'reference_no' => 'RF-2026-000123',
-//            ]);
     }
 }
