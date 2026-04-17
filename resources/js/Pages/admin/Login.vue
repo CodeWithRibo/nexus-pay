@@ -25,6 +25,6 @@ const submitForm = () => {
 <template>
     <KioskLayout>
         <Head title="Admin Login" />
-        <LoginForm :form="form" :user-type="props.role" @submit="submitForm" />
+        <LoginForm :form="form" :userType="role"  @submit="submitForm" />
     </KioskLayout>
 </template>
