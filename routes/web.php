@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Kiosk\CashInsertionController;
@@ -54,6 +56,8 @@ Route::get('/{isLoggedIn?}', LandingScreenController::class)
     ->name('kiosk.landing-screen');
 
 Route::middleware(['auth', 'student'])->group(function() {
+
+
     Route::post('kiosk/logout-with-transaction', [DestroyTransactionPaymentController::class, 'destroyWithTransaction'])->name('login.destroy.with.transaction');
     Route::post('kiosk/remove-transaction', [DestroyTransactionPaymentController::class, 'removeTransaction'])->name('remove-transaction');
 
@@ -83,5 +87,6 @@ Route::middleware(['auth', 'student'])->group(function() {
 });
 
 Route::middleware(['auth', 'admin'])->group(function() {
+    Route::get('admin/dashboard', DashboardController::class)->name('admin.dashboard');
 
 });
