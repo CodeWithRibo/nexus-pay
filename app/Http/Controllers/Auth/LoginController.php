@@ -45,11 +45,13 @@ class LoginController extends Controller
 
             $request->session()->flash('success', 'Welcome Back! '.$displayName);
 
-            $defaultRedirect = $role === 'admin'
-                ? route('kiosk.landing-screen')
-                : route('kiosk.service-selection');
+            if ($role === 'admin') {
+                $request->session()->forget('url.intended');
 
-            return redirect()->intended($defaultRedirect);
+                return to_route('admin.dashboard');
+            }
+
+            return redirect()->intended(route('kiosk.service-selection'));
         }
 
         return back()->withErrors([
@@ -61,7 +63,7 @@ class LoginController extends Controller
 
     public function destroy(Request $request)
     {
-        $role = Auth::user()?->role;
+        $role = strtolower((string) Auth::user()?->role);
 
         Auth::logout();
         $request->session()->invalidate();
