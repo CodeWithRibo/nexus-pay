@@ -13,10 +13,6 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'student_id' => $this->faker->unique()->numerify('02########'),
-            'email' => $this->faker->unique()->safeEmail(),
-            'password' => bcrypt('password'),
-            'role' => 'student',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];
