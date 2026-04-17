@@ -2,7 +2,6 @@
 
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\isAdminMiddleware;
-use App\Http\Middleware\isCashierMiddleware;
 use App\Http\Middleware\isStudentMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
