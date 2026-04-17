@@ -3,6 +3,13 @@ import LoginForm from "@/Pages/components/auth/LoginForm.vue";
 import { Head, useForm } from "@inertiajs/vue3";
 import KioskLayout from "@/Pages/components/layout/KioskLayout.vue";
 
+const props = defineProps({
+    role: {
+        type: String,
+        default: "student",
+    },
+});
+
 const form = useForm({
     login: null,
     password: null,
@@ -18,6 +25,6 @@ const submitForm = () => {
 <template>
     <KioskLayout>
         <Head title="Login" />
-        <LoginForm :form="form" @submit="submitForm" />
+        <LoginForm :form="form" :userType="props.role" @submit="submitForm" />
     </KioskLayout>
 </template>

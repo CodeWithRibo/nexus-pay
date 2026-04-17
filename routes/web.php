@@ -33,8 +33,11 @@ Route::middleware('auth')->group(function() {
 });
 
 Route::middleware(['guest'])->group(function () {
-    Route::get('login', [LoginController::class, 'create'])->name('login');
-    Route::post('login', [LoginController::class, 'store'])->name('login.store');
+    Route::get('login', [LoginController::class, 'create'])->defaults('role', 'student')->name('login');
+    Route::post('login', [LoginController::class, 'store'])->defaults('role', 'student')->name('login.store');
+
+    Route::get('admin/login', [LoginController::class, 'create'])->defaults('role', 'admin')->name('admin.login');
+    Route::post('admin/login', [LoginController::class, 'store'])->defaults('role', 'admin')->name('admin.login.store');
 
     Route::get('register', [RegisterController::class, 'create'])->name('register.create');
     Route::post('register', [RegisterController::class, 'store'])->name('register.store');
@@ -77,12 +80,6 @@ Route::middleware(['auth', 'student'])->group(function() {
     Route::post('kiosk/processing/{transaction_id}', [DynamicProcessingPaymentController::class, 'process'])->name('kiosk.processing.process');
     Route::get('kiosk/receipt/{transaction_id}', DynamicReceiptController::class)->name('kiosk.receipt');
 
-});
-
-Route::middleware(['auth', 'cashier'])->group(function () {
-    Route::get('cashier/testing', function () {
-        return 'Hello';
-    });
 });
 
 Route::middleware(['auth', 'admin'])->group(function() {

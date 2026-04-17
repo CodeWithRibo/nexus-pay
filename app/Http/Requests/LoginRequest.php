@@ -12,8 +12,14 @@ class LoginRequest extends FormRequest
             'login' => [
                 'required',
                 function ($attribute, $value, $fail) {
+                    $role = $this->route('role', 'student');
                     $isEmail = filter_var($value, FILTER_VALIDATE_EMAIL);
                     $isStudentId = preg_match('/^02000[0-9]{6}$/', $value);
+
+                    if ($role === 'admin' && !$isEmail) {
+                        $fail('The '.$attribute.' must be a valid email.');
+                        return;
+                    }
 
                     if (!$isEmail && !$isStudentId) {
                         $fail('The '.$attribute.' must be a valid email or student ID.');

@@ -11,19 +11,24 @@ use Inertia\Inertia;
 
 class LoginController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
-        return Inertia::render('Login');
+        $role = $this->resolveRole($request);
+
+        return Inertia::render($role === 'admin' ? 'admin/Login' : 'Login', [
+            'role' => $role,
+        ]);
     }
 
     public function store(LoginRequest $request)
     {
+        $role = $this->resolveRole($request);
         $login = $request->input('login');
         $password = $request->input('password');
 
         $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'student_id';
 
-        if (Auth::guard('web')->attempt([$fieldType => $login, 'password' => $password])) {
+        if (Auth::guard('web')->attempt([$fieldType => $login, 'password' => $password, 'role' => $role])) {
             $transactionId = $request->session()->get('transaction_id');
 
             $request->session()->regenerate();
@@ -32,25 +37,46 @@ class LoginController extends Controller
                 $request->session()->put('transaction_id', $transactionId);
             }
 
-            $getName = Auth::user()->load('information')->information;
+            $user = Auth::user()->loadMissing('information');
+            $getName = $user->information;
 
-            $fullName  = $getName?->first_name . ' ' . $getName?->last_name;
-            $request->session()->flash('success', 'Welcome Back!' . " {$fullName}");
-            return redirect()->intended(route('kiosk.service-selection'));
+            $fullName = trim(($getName?->first_name ?? '').' '.($getName?->last_name ?? ''));
+            $displayName = $fullName !== '' ? $fullName : $user->email;
+
+            $request->session()->flash('success', 'Welcome Back! '.$displayName);
+
+            $defaultRedirect = $role === 'admin'
+                ? route('kiosk.landing-screen')
+                : route('kiosk.service-selection');
+
+            return redirect()->intended($defaultRedirect);
         }
+
         return back()->withErrors([
-            'login' => 'Invalid Student ID / Email or password',
+            'login' => $role === 'admin'
+                ? 'Invalid email or password'
+                : 'Invalid Student ID / Email or password',
         ]);
     }
 
     public function destroy(Request $request)
     {
+        $role = Auth::user()?->role;
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         $request->session()->flash('success', 'You have been safely logged out');
-        return to_route('login');
+
+        return to_route($role === 'admin' ? 'admin.login' : 'login');
+    }
+
+    private function resolveRole(Request $request): string
+    {
+        $role = $request->route('role', 'student');
+
+        return in_array($role, ['student', 'admin'], true) ? $role : 'student';
     }
 
 }
